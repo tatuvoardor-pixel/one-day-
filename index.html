@@ -5,15 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
     <meta name="theme-color" content="#0c0c0e">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MAX.CORE">
     <meta name="description" content="MAX.CORE — Sistema biométrico.">
     <title>MAX.CORE — BioMetrics</title>
-    <link rel="manifest" href="manifest.json" type="application/manifest+json">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <script>
+    (function(){
+      var ico='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">'+
+        '<rect width="512" height="512" rx="112" fill="#0c0c0e"/>'+
+        '<circle cx="256" cy="256" r="180" fill="none" stroke="#2dd4bf" stroke-width="14"/>'+
+        '<path d="M120 256 L200 256 L230 180 L290 332 L320 256 L392 256" fill="none" stroke="#2dd4bf" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>'+
+        '</svg>';
+      var iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico);
+      var mf={
+        name:"MAX.CORE BioMetrics",short_name:"MAX.CORE",
+        display:"standalone",
+        display_override:["fullscreen","standalone"],
+        orientation:"portrait",start_url:"./",scope:"./",
+        background_color:"#0c0c0e",theme_color:"#0c0c0e",
+        icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]
+      };
+      var ml=document.createElement('link');ml.rel='manifest';
+      ml.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(mf));
+      document.head.appendChild(ml);
+      var il=document.createElement('link');il.rel='apple-touch-icon';il.href=iUrl;document.head.appendChild(il);
+      var il2=document.createElement('link');il2.rel='icon';il2.href=iUrl;document.head.appendChild(il2);
+    })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
     <style>
         /* ========================================================
@@ -769,8 +788,8 @@
             </button>
 
             <div style="margin-top: 30px; text-align: center; color: var(--text-dim); font-size: 11px; letter-spacing: 0.2em;">
-                MAX.CORE · v1.0<br>
-                <span style="opacity: 0.5;">Oficial 2026.3 · Shift Workers Suite</span>
+                MAX.CORE · v1.1<br>
+                <span style="opacity: 0.5;">Manifest + ícone embutidos</span>
             </div>
         </div>
     </section>
@@ -1712,8 +1731,15 @@ else inicializar();
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('[MAX.CORE] PWA online:', reg.scope))
+        // Limpa caches antigos pra forçar update
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            regs.forEach(r => r.update());
+        });
+        navigator.serviceWorker.register('./service-worker.js?v=1.1')
+            .then(reg => {
+                console.log('[MAX.CORE] PWA online:', reg.scope);
+                reg.update();
+            })
             .catch(err => console.log('[MAX.CORE] SW falhou:', err));
     });
 }
