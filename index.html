@@ -123,6 +123,19 @@
         .mural-text .hi-r { color: var(--accent-red); }
         .mural-text .hi-g { color: var(--accent-green); }
         .mural-text .hi-p { color: var(--accent-purple); }
+
+        /* ═══ CARD COMPACTO DO BRIEFING (HOME) ═══ */
+        .briefing-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease; width: 100%; text-align: left; font-family: inherit; }
+        .briefing-card:active { transform: scale(0.98); border-color: var(--accent-teal); }
+        .briefing-card.alert { border-color: rgba(239, 68, 68, 0.45); background: rgba(239, 68, 68, 0.08); }
+        .briefing-card.warn { border-color: rgba(234, 179, 8, 0.45); background: rgba(234, 179, 8, 0.06); }
+        .briefing-card.good { border-color: rgba(34, 197, 94, 0.45); background: rgba(34, 197, 94, 0.06); }
+        .briefing-card.illness { border-color: rgba(168, 85, 247, 0.45); background: rgba(168, 85, 247, 0.06); }
+        .briefing-icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
+        .briefing-mid { flex: 1; min-width: 0; }
+        .briefing-mid-label { font-size: 10px; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; }
+        .briefing-mid-titulo { font-size: 14px; color: var(--text-primary); line-height: 1.2; font-weight: 600; }
+        .briefing-arrow { color: var(--text-muted); font-size: 18px; flex-shrink: 0; }
         .rings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
         .ring-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 12px 6px 12px; cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease; min-width: 0; text-align: center; }
         .ring-card:active { transform: scale(0.96); border-color: var(--accent-teal); }
@@ -320,10 +333,14 @@
                 <div class="calib-bar"><div class="calib-bar-inner" id="calib-bar-inner" style="width:0%"></div></div>
             </div>
 
-            <div class="mural" id="mural-box">
-                <div class="mural-label" id="mural-label">▌ Diagnóstico do Sistema</div>
-                <p class="mural-text" id="mural-text">Aguardando dados do ciclo...</p>
-            </div>
+            <button class="briefing-card" id="briefing-card" onclick="abrirTela('briefing')" type="button">
+                <div class="briefing-icon" id="briefing-icon">⚪</div>
+                <div class="briefing-mid">
+                    <div class="briefing-mid-label">▌ Briefing do Dia</div>
+                    <div class="briefing-mid-titulo" id="briefing-titulo">Aguardando dados...</div>
+                </div>
+                <div class="briefing-arrow">›</div>
+            </button>
 
             <div class="rings-grid">
                 <button class="ring-card" onclick="abrirTela('strain')" type="button">
@@ -402,6 +419,20 @@
             <div class="actions-row">
                 <button class="btn purple" onclick="abrirTela('central')" type="button">📊 Central</button>
                 <button class="btn primary" onclick="pedirEncerrarCiclo()" type="button">💾 Salvar Ciclo</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="screen" id="screen-briefing">
+        <div class="screen-inner">
+            <header class="topbar">
+                <button class="topbar-btn" onclick="voltarHome()" type="button">‹</button>
+                <div class="topbar-title">Briefing do Dia</div>
+                <div style="width: 40px;"></div>
+            </header>
+            <div class="mural" id="mural-box" style="margin-top:8px;">
+                <div class="mural-label" id="mural-label">▌ Briefing do Dia</div>
+                <p class="mural-text" id="mural-text">Aguardando dados do ciclo...</p>
             </div>
         </div>
     </section>
@@ -788,8 +819,8 @@
             </button>
 
             <div style="margin-top: 30px; text-align: center; color: var(--text-dim); font-size: 11px; letter-spacing: 0.2em;">
-                MAX.CORE · v1.5<br>
-                <span style="opacity: 0.5;">Briefing direto · avisos só quando precisa</span>
+                MAX.CORE · v1.6<br>
+                <span style="opacity: 0.5;">Briefing em card clicável</span>
             </div>
         </div>
     </section>
@@ -1250,11 +1281,13 @@ function atualizarMural(rec, sono, candles, alertaInfeccao) {
     if (!box || !text) return;
     box.classList.remove('alert', 'warn', 'illness');
     let html, labelTxt = '▌ Briefing do Dia';
+    let cardIcone = '⚪', cardTitulo = '', cardTipo = '';
 
     // ALERTAS CRÍTICOS
     if (estadoSaude === 'doente' || alertaInfeccao) {
         box.classList.add('illness');
         labelTxt = '⚠️ Alerta Sistêmico';
+        cardIcone = '⚠️'; cardTitulo = 'REPOUSO ABSOLUTO'; cardTipo = 'illness';
         html = '⚠️ <strong>Resposta imunológica detectada.</strong><br>' +
                'Sistema imune ativado — corpo lutando contra algo.<br><br>' +
                '🛌 <span class="hi-p">REPOUSO ABSOLUTO</span><br>' +
@@ -1262,15 +1295,18 @@ function atualizarMural(rec, sono, candles, alertaInfeccao) {
                '💊 Vitamina C · Zinco · sono 9h+';
         label.textContent = labelTxt;
         text.innerHTML = html;
+        atualizarCardBriefing(cardIcone, cardTitulo, cardTipo);
         return;
     }
     if (estadoSaude === 'lesionado') {
         box.classList.add('alert');
         labelTxt = '❌ Alerta de Lesão';
+        cardIcone = '❌'; cardTitulo = 'PROTOCOLO DE LESÃO'; cardTipo = 'alert';
         html = '❌ <strong>Lesão ' + grauSaude + '</strong> · protocolo de restrição.<br>' +
                '🚫 Evitar carga na região · 🧊 RICE se inflamação.';
         label.textContent = labelTxt;
         text.innerHTML = html;
+        atualizarCardBriefing(cardIcone, cardTitulo, cardTipo);
         return;
     }
 
@@ -1305,6 +1341,7 @@ function atualizarMural(rec, sono, candles, alertaInfeccao) {
     // 🟢 RECOVERY ALTO (67-100%)
     // ═══════════════════════════════════════════════════════
     if (rec.score >= 67) {
+        cardIcone = '🟢'; cardTitulo = 'TREINO PESADO LIBERADO'; cardTipo = 'good';
         html = '🟢 <strong>Recovery ' + rec.score + '% — corpo recuperado</strong><br><br>' +
                '<em style="opacity:0.85">Sistema parassimpático dominante. Coração descansando bem em repouso, HRV elevada. Bateria fisiológica carregada.</em><br><br>' +
                '🏋️ <span class="hi-g"><strong>HOJE: TREINO PESADO LIBERADO</strong></span>' +
@@ -1316,6 +1353,7 @@ function atualizarMural(rec, sono, candles, alertaInfeccao) {
     // ═══════════════════════════════════════════════════════
     else if (rec.score >= 34) {
         box.classList.add('warn');
+        cardIcone = '🟡'; cardTitulo = 'TREINO LEVE'; cardTipo = 'warn';
         html = '🟡 <strong>Recovery ' + rec.score + '% — corpo processando desgaste</strong><br><br>' +
                '<em style="opacity:0.85">Sistema nervoso ainda em modo simpático do turno anterior. Coração trabalhando mais em repouso. HRV abaixo da média.</em><br><br>' +
                '🏋️ <span class="hi-y"><strong>HOJE: TREINO LEVE</strong></span>' +
@@ -1327,6 +1365,7 @@ function atualizarMural(rec, sono, candles, alertaInfeccao) {
     // ═══════════════════════════════════════════════════════
     else {
         box.classList.add('alert');
+        cardIcone = '🔴'; cardTitulo = 'RECUPERAÇÃO'; cardTipo = 'alert';
         html = '🔴 <strong>Recovery ' + rec.score + '% — sistema em alerta vermelho</strong><br><br>' +
                '<em style="opacity:0.85">Sistema simpático cravado no modo ligado — corpo não desligou do estresse físico acumulado. Cortisol provavelmente alto, inflamação rolando, HRV muito abaixo da média.</em><br><br>' +
                '🛑 <span class="hi-r"><strong>HOJE: RECUPERAÇÃO</strong></span>' +
@@ -1335,6 +1374,19 @@ function atualizarMural(rec, sono, candles, alertaInfeccao) {
 
     label.textContent = labelTxt;
     text.innerHTML = html;
+    atualizarCardBriefing(cardIcone, cardTitulo, cardTipo);
+}
+
+// Atualiza o card compacto da home
+function atualizarCardBriefing(icone, titulo, tipo) {
+    const card = getEl('briefing-card');
+    const iconeEl = getEl('briefing-icon');
+    const tituloEl = getEl('briefing-titulo');
+    if (!card) return;
+    card.classList.remove('alert', 'warn', 'good', 'illness');
+    if (tipo) card.classList.add(tipo);
+    if (iconeEl) iconeEl.textContent = icone;
+    if (tituloEl) tituloEl.textContent = titulo;
 }
 
 function atualizarHomeAneis(strain, rec, sono) {
