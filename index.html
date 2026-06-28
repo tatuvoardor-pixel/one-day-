@@ -139,7 +139,7 @@
         .quick-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; transition: transform 0.15s ease; min-width: 0; text-align: left; display: flex; flex-direction: column; gap: 6px; }
         .quick-card:active { transform: scale(0.97); }
         .quick-card-head { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
-        .quick-card-title { font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; min-width: 0; line-height: 1.2; word-wrap: break-word; }
+        .quick-card-title { font-size: 11px; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase; min-width: 0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .quick-card-arrow { color: var(--text-dim); font-size: 16px; flex-shrink: 0; }
         .quick-card-value { font-size: clamp(22px, 5.6vw, 26px); color: var(--text-primary); line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .quick-card-sub { font-size: 12px; color: var(--text-muted); }
@@ -460,7 +460,7 @@
             </div>
             <div class="baseline-info"><span>Status:</span><span></span><span id="spo2-status">Ótimo</span></div>
             <div class="input-row stress">
-                <div class="input-row-label">Estresse (Amazfit)<small>Média do dia 0-99</small></div>
+                <div class="input-row-label">Estresse<small>Média do dia 0-99</small></div>
                 <div class="input-row-value">
                     <input type="number" inputmode="numeric" id="in-estresse" value="30" oninput="motorGeral()">
                     <span class="input-row-unit"></span>
@@ -601,7 +601,7 @@
             </div>
             <div class="section-title">🌅 Despertares</div>
             <div class="input-row">
-                <div class="input-row-label">Vezes acordou<small>Do Amazfit</small></div>
+                <div class="input-row-label">Vezes acordou<small>Quantas vezes durante o sono</small></div>
                 <div class="input-row-value"><input type="number" inputmode="numeric" id="in-despertares" value="0" oninput="motorGeral()"></div>
             </div>
             <div class="input-row">
@@ -788,8 +788,8 @@
             </button>
 
             <div style="margin-top: 30px; text-align: center; color: var(--text-dim); font-size: 11px; letter-spacing: 0.2em;">
-                MAX.CORE · v1.1<br>
-                <span style="opacity: 0.5;">Manifest + ícone embutidos</span>
+                MAX.CORE · v1.5<br>
+                <span style="opacity: 0.5;">Briefing direto · avisos só quando precisa</span>
             </div>
         </div>
     </section>
@@ -874,6 +874,10 @@ function abrirTela(nome) {
     requestAnimationFrame(() => { proxima.scrollTop = 0; });
     telaAtual = nome;
     if (nome === 'central') atualizarSyncBadge();
+    // v1.3 — Auto-puxa dados do bridge quando entra nas telas que dependem deles
+    if (nome === 'recovery' || nome === 'strain' || nome === 'sono' || nome === 'energia' || nome === 'nutricao') {
+        if (typeof aplicarBridgeData === 'function') aplicarBridgeData(false);
+    }
 }
 
 function voltarHome() {
@@ -1245,24 +1249,90 @@ function atualizarMural(rec, sono, candles, alertaInfeccao) {
     const text = getEl('mural-text');
     if (!box || !text) return;
     box.classList.remove('alert', 'warn', 'illness');
-    let html, labelTxt = '▌ Diagnóstico do Sistema';
+    let html, labelTxt = '▌ Briefing do Dia';
+
+    // ALERTAS CRÍTICOS
     if (estadoSaude === 'doente' || alertaInfeccao) {
         box.classList.add('illness');
         labelTxt = '⚠️ Alerta Sistêmico';
-        html = '⚠️ <strong>Alerta:</strong> resposta imunológica detectada. <span class="hi-p">Repouso absoluto</span>.';
-    } else if (estadoSaude === 'lesionado') {
+        html = '⚠️ <strong>Resposta imunológica detectada.</strong><br>' +
+               'Sistema imune ativado — corpo lutando contra algo.<br><br>' +
+               '🛌 <span class="hi-p">REPOUSO ABSOLUTO</span><br>' +
+               '💧 Hidratação extra<br>' +
+               '💊 Vitamina C · Zinco · sono 9h+';
+        label.textContent = labelTxt;
+        text.innerHTML = html;
+        return;
+    }
+    if (estadoSaude === 'lesionado') {
         box.classList.add('alert');
         labelTxt = '❌ Alerta de Lesão';
-        html = '❌ <strong>Lesão ' + grauSaude + '</strong>. Protocolo de restrição ativo.';
-    } else if (rec.score < 34) {
-        box.classList.add('alert');
-        html = '🔴 <strong>Recovery crítico (' + rec.score + '%):</strong> tônus simpático dominante. <span class="hi-r">Repouso necessário</span>.';
-    } else if (rec.score < 67) {
-        box.classList.add('warn');
-        html = '🟡 <strong>Recovery moderado (' + rec.score + '%):</strong> sistema processando desgaste. <span class="hi-y">Foco em proteína</span>.';
-    } else {
-        html = '✅ <strong>Sistema operacional (' + rec.score + '%):</strong> tônus parassimpático elevado. <span class="hi-g">Regeneração eficiente</span>.';
+        html = '❌ <strong>Lesão ' + grauSaude + '</strong> · protocolo de restrição.<br>' +
+               '🚫 Evitar carga na região · 🧊 RICE se inflamação.';
+        label.textContent = labelTxt;
+        text.innerHTML = html;
+        return;
     }
+
+    // DADOS REAIS
+    const protConsumida = getInt('in-prot', 0);
+    const aguaConsumida = getInt('in-agua', 0);
+    const peso = getNum('in-peso', 89);
+    const mm = peso * 0.78;
+    const targetProt = Math.round(mm * 2.5);
+    const targetAgua = 3500;
+    const sonoHoras = sono.total / 60;
+    const pctProt = targetProt > 0 ? (protConsumida / targetProt) : 1;
+    const pctAgua = targetAgua > 0 ? (aguaConsumida / targetAgua) : 1;
+
+    // AVISOS opcionais (só aparecem se tá ruim)
+    let avisos = '';
+    if (pctProt < 0.6) {
+        avisos += '<br>🥩 <strong>Aumenta proteína</strong> — risco de catabolismo';
+    } else if (pctProt < 0.85) {
+        avisos += '<br>🥩 Foco em proteína hoje';
+    }
+    if (pctAgua < 0.5) {
+        avisos += '<br>💧 <strong>Hidrate-se</strong> — desidratação';
+    } else if (pctAgua < 0.8) {
+        avisos += '<br>💧 Hidrate-se mais';
+    }
+    if (sonoHoras < 6 && sonoHoras > 0) {
+        avisos += '<br>😴 Sono curto — priorize 8h+ hoje';
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // 🟢 RECOVERY ALTO (67-100%)
+    // ═══════════════════════════════════════════════════════
+    if (rec.score >= 67) {
+        html = '🟢 <strong>Recovery ' + rec.score + '% — corpo recuperado</strong><br><br>' +
+               '<em style="opacity:0.85">Sistema parassimpático dominante. Coração descansando bem em repouso, HRV elevada. Bateria fisiológica carregada.</em><br><br>' +
+               '🏋️ <span class="hi-g"><strong>HOJE: TREINO PESADO LIBERADO</strong></span>' +
+               avisos;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // 🟡 RECOVERY MÉDIO (34-66%)
+    // ═══════════════════════════════════════════════════════
+    else if (rec.score >= 34) {
+        box.classList.add('warn');
+        html = '🟡 <strong>Recovery ' + rec.score + '% — corpo processando desgaste</strong><br><br>' +
+               '<em style="opacity:0.85">Sistema nervoso ainda em modo simpático do turno anterior. Coração trabalhando mais em repouso. HRV abaixo da média.</em><br><br>' +
+               '🏋️ <span class="hi-y"><strong>HOJE: TREINO LEVE</strong></span>' +
+               avisos;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // 🔴 RECOVERY BAIXO (0-33%)
+    // ═══════════════════════════════════════════════════════
+    else {
+        box.classList.add('alert');
+        html = '🔴 <strong>Recovery ' + rec.score + '% — sistema em alerta vermelho</strong><br><br>' +
+               '<em style="opacity:0.85">Sistema simpático cravado no modo ligado — corpo não desligou do estresse físico acumulado. Cortisol provavelmente alto, inflamação rolando, HRV muito abaixo da média.</em><br><br>' +
+               '🛑 <span class="hi-r"><strong>HOJE: RECUPERAÇÃO</strong></span>' +
+               avisos;
+    }
+
     label.textContent = labelTxt;
     text.innerHTML = html;
 }
@@ -1528,6 +1598,7 @@ function aplicarBridgeData(manual) {
         if (s.rhr) { setV('in-rhr', s.rhr); mudou = true; }
         if (s.rpm) { setV('in-rpm', s.rpm); mudou = true; }
         if (s.spo2) { setV('in-spo2', s.spo2); mudou = true; }
+        if (s.estresse != null && s.estresse > 0) { setV('in-estresse', s.estresse); mudou = true; }
         if (s.tipoSono === 'dia' || s.tipoSono === 'noite') setTipoSono(s.tipoSono);
         resumoMsg.push('SLEEP');
     }
