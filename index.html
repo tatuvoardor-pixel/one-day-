@@ -819,8 +819,8 @@
             </button>
 
             <div style="margin-top: 30px; text-align: center; color: var(--text-dim); font-size: 11px; letter-spacing: 0.2em;">
-                MAX.CORE · v1.6<br>
-                <span style="opacity: 0.5;">Briefing em card clicável</span>
+                MAX.CORE · v1.7<br>
+                <span style="opacity: 0.5;">Gasto calórico realista</span>
             </div>
         </div>
     </section>
@@ -1201,17 +1201,44 @@ function calcularRecovery(hrv, rmssd, rhr, rpm, spo2, pontuacaoSono, candles, es
 }
 
 function calcularCalorias(peso, paletes, sacosReator, tempoMarreta, fcTurno, treinoTempo, treinoFc, passos) {
-    const calPaletes = 5.5 * peso * (paletes * 40 * 0.015 / 60);
-    const calReator = 8.5 * peso * (sacosReator * 0.02 / 60);
+    // Palete: 40 sacos de 25kg, ~4.5min por palete (montar + carregar)
+    // MET 6.5 = trabalho braçal pesado (ACSM)
+    const calPaletes = 6.5 * peso * (paletes * 4.5 / 60);
+
+    // Reator: 25kg acima da cabeça, ~30s por saco
+    // MET 8.0 = shoulder press pesado repetitivo
+    const calReator = 8.0 * peso * (sacosReator * 0.5 / 60);
+
+    // Marreta: 60min = 60min de impacto contínuo
+    // MET 8.0 = swinging heavy hammer (ACSM)
     const calMarreta = 8.0 * peso * (tempoMarreta / 60);
-    let calTurnoFC = 0;
-    if (fcTurno > 0 && intensidadeTurno !== 'folga') calTurnoFC = Math.max(0, (MIN_ESFORCO_REAL_TURNO * ((0.6309 * fcTurno) + (0.1988 * peso) + (0.2017 * IDADE) - 55.0969)) / 4.184);
-    let calTreino = 0;
-    if (treinoTempo > 0 && treinoFc > 0 && treinoTipo !== 'nenhum') calTreino = Math.max(0, (treinoTempo * ((0.6309 * treinoFc) + (0.1988 * peso) + (0.2017 * IDADE) - 55.0969)) / 4.184);
+
+    // Passos: 0.045 kcal por passo (andar geral)
     const calPassos = passos * 0.045;
-    let calAtivas;
-    if (intensidadeTurno !== 'folga') calAtivas = Math.round(Math.max(calTurnoFC, calPassos + calPaletes + calReator + calMarreta));
-    else calAtivas = Math.round(calPassos + calTreino);
+
+    // Treino separado
+    let calTreino = 0;
+    if (treinoTempo > 0 && treinoFc > 0 && treinoTipo !== 'nenhum') {
+        calTreino = Math.max(0, (treinoTempo * ((0.6309 * treinoFc) + (0.1988 * peso) + (0.2017 * IDADE) - 55.0969)) / 4.184);
+    }
+
+    // FC do turno como método alternativo (Keytel)
+    let calTurnoFC = 0;
+    if (fcTurno > 0 && intensidadeTurno !== 'folga') {
+        calTurnoFC = Math.max(0, (MIN_ESFORCO_REAL_TURNO * ((0.6309 * fcTurno) + (0.1988 * peso) + (0.2017 * IDADE) - 55.0969)) / 4.184);
+    }
+
+    // Trabalho braçal (SEMPRE conta se preenchido, independente da intensidade marcada)
+    const calTrabBracal = calPaletes + calReator + calMarreta;
+
+    // Total ativo: pega o MAIOR entre método MET (trabalho braçal + passos) e método FC
+    const calMetodoMET = calPassos + calTrabBracal;
+    const calMetodoFC = calPassos + calTurnoFC;
+    let calAtivas = Math.round(Math.max(calMetodoMET, calMetodoFC));
+
+    // Soma treino se houver
+    calAtivas += Math.round(calTreino);
+
     return { total: calAtivas, treino: Math.round(calTreino) };
 }
 
