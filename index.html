@@ -139,7 +139,7 @@
         .rings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
         .ring-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 12px 10px 12px; cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease; min-width: 0; text-align: center; overflow: hidden; }
         .ring-card:active { transform: scale(0.96); border-color: var(--accent-teal); }
-        .ring-svg-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 95px; margin: 0 auto 8px; overflow: hidden; border-radius: 50%; }
+        .ring-svg-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 110px; margin: 0 auto 8px; overflow: hidden; border-radius: 50%; }
         .ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
         .ring-bg-track { fill: none; stroke: var(--border); stroke-width: 3.2; }
         .ring-progress { fill: none; stroke-width: 3.2; stroke-linecap: butt; stroke-dasharray: 94.24; stroke-dashoffset: 94.24; transition: stroke-dashoffset 0.7s cubic-bezier(0.32, 0.72, 0, 1), stroke 0.4s ease; }
@@ -819,7 +819,7 @@
             </button>
 
             <div style="margin-top: 30px; text-align: center; color: var(--text-dim); font-size: 11px; letter-spacing: 0.2em;">
-                MAX.CORE · v1.9<br>
+                MAX.CORE · v2.0<br>
                 <span style="opacity: 0.5;">Sleep label · fix arco Recovery</span>
                 <span style="opacity: 0.5;">Gasto calórico realista</span>
             </div>
@@ -1882,10 +1882,20 @@ function inicializar() {
     const g = localStorage.getItem('bio_grau') || 'moderado';
     const ts = localStorage.getItem('bio_tipo_sono') || 'noite';
     const tt = localStorage.getItem('bio_treino_tipo') || 'nenhum';
-    if (localStorage.getItem('bio_rec_botas') === 'true') recBotas = true;
+    // Restaura múltiplos treinos (novo) ou fallback pro antigo (singular)
+    const ttArray = JSON.parse(localStorage.getItem('bio_treino_tipos') || 'null');
+    if (ttArray && ttArray.length > 0) {
+        treinoTipos = ttArray;
+        treinoTipos.forEach(t => {
+            const btn = getEl('btn-treino-'+t);
+            if (btn) btn.classList.add('active');
+        });
+    } else {
+        setTreinoTipo(tt);
+    }
     if (localStorage.getItem('bio_rec_pistola') === 'true') recPistola = true;
     grauSaude = g;
-    setTurno(t); setSaude(s); setGrauSaude(g); setTipoSono(ts); setTreinoTipo(tt);
+    setTurno(t); setSaude(s); setGrauSaude(g); setTipoSono(ts);
     if (recBotas) { const b = getEl('btn-rec-botas'); if (b) b.classList.add('active', 'rec'); }
     if (recPistola) { const b = getEl('btn-rec-pistola'); if (b) b.classList.add('active', 'rec'); }
 
