@@ -503,10 +503,17 @@
                 </div>
             </div>
             <div class="baseline-info"><span>Status:</span><span id="estresse-status">--</span><span id="estresse-impacto">--</span></div>
+
+            <div class="input-row">
+                <div class="input-row-label" style="color:#f87171;">🌡️ Temperatura<small>Ao acordar · °C</small></div>
+                <div class="input-row-value">
+                    <input type="number" inputmode="decimal" id="in-temp-corporal" value="" placeholder="36.5" step="0.1" min="35" max="42" oninput="motorGeral()" style="color:#f87171;">
+                    <span class="input-row-unit">°C</span>
+                </div>
+            </div>
+            <div class="baseline-info"><span>Sua média:</span><span id="base-temp">--</span><span id="temp-status">--</span></div>
         </div>
     </section>
-
-    <section class="screen" id="screen-strain">
         <div class="screen-inner">
             <header class="topbar">
                 <button class="topbar-btn" onclick="voltarHome()" type="button">‹</button>
@@ -761,6 +768,7 @@
                 <div id="bateria-descargas">
                     <div class="battery-line"><span>Turno</span><span id="bat-d-turno">0</span></div>
                     <div class="battery-line"><span>Treino</span><span id="bat-d-treino">0</span></div>
+                    <div class="battery-line"><span>Passos / Distância</span><span id="bat-d-passos">0</span></div>
                     <div class="battery-line"><span>Estresse alto</span><span id="bat-d-estresse">0</span></div>
                 </div>
             </div>
@@ -817,7 +825,30 @@
             <div class="stat-card"><span class="stat-card-label">Débito de Sono 7D</span><span class="stat-card-value blue" id="central-sono">--</span></div>
             <div class="stat-card"><span class="stat-card-label">Total de Ciclos</span><span class="stat-card-value" id="central-total">0</span></div>
 
-            <div class="section-title">💾 Backup</div>
+            <!-- GRÁFICO SONO 10 DIAS -->
+            <div class="section-title">😴 Sono — Últimos 10 Ciclos</div>
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);">
+                            <div style="width:8px;height:8px;border-radius:2px;background:var(--accent-blue)"></div>Leve
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);">
+                            <div style="width:8px;height:8px;border-radius:2px;background:var(--accent-purple)"></div>Profundo
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);">
+                            <div style="width:8px;height:8px;border-radius:2px;background:#f472b6"></div>REM
+                        </div>
+                    </div>
+                    <div style="font-size:10px;color:var(--accent-red);letter-spacing:0.1em;">— 8H META</div>
+                </div>
+                <div id="grafico-sono" style="display:flex;align-items:flex-end;gap:4px;height:100px;position:relative;">
+                    <!-- linha da meta 8h -->
+                    <div id="grafico-meta-linha" style="position:absolute;left:0;right:0;border-top:1px dashed var(--accent-red);opacity:0.5;pointer-events:none;"></div>
+                </div>
+                <div id="grafico-sono-labels" style="display:flex;gap:4px;margin-top:4px;"></div>
+                <div style="text-align:center;margin-top:8px;font-size:10px;color:var(--text-muted);" id="grafico-sono-media"></div>
+            </div>
             <div class="toggle-group cols-2">
                 <button class="toggle-btn" onclick="exportarDados()" type="button">⬇ Exportar</button>
                 <button class="toggle-btn" onclick="document.getElementById('importFile').click()" type="button">⬆ Importar</button>
@@ -830,7 +861,7 @@
             </button>
 
             <div style="margin-top: 30px; text-align: center; color: var(--text-dim); font-size: 11px; letter-spacing: 0.2em;">
-                MAX.CORE · v2.2<br>
+                MAX.CORE · v2.5<br>
                 <span style="opacity: 0.5;">Sleep label · fix arco Recovery</span>
                 <span style="opacity: 0.5;">Gasto calórico realista</span>
             </div>
@@ -916,7 +947,7 @@ function abrirTela(nome) {
     proxima.classList.remove('behind');
     requestAnimationFrame(() => { proxima.scrollTop = 0; });
     telaAtual = nome;
-    if (nome === 'central') atualizarSyncBadge();
+    if (nome === 'central') { atualizarSyncBadge(); renderGraficoSono(); }
     // v1.3 — Auto-puxa dados do bridge quando entra nas telas que dependem deles
     if (nome === 'recovery' || nome === 'strain' || nome === 'sono' || nome === 'energia' || nome === 'nutricao') {
         if (typeof aplicarBridgeData === 'function') aplicarBridgeData(false);
@@ -1090,6 +1121,8 @@ function obterMediasHistoricas() {
     const sonoIdeal = 480;
     const debitoMin = hist.slice(-7).reduce((acc, c) => acc + Math.max(0, sonoIdeal - (c.sonoTotal || sonoIdeal)), 0);
     const rec7d = arrRec.slice(-7).reduce((a, b) => a + b, 0) / Math.min(7, hist.length);
+    const arrTemp = hist.map(c => c.tempCorporal).filter(v => v != null && v > 35);
+    const tempMedia = arrTemp.length >= 3 ? parseFloat((arrTemp.reduce((a, b) => a + b, 0) / arrTemp.length).toFixed(2)) : null;
     return {
         hrv: Math.round(ema(arrHrv, 0.3)),
         rhr: Math.round(ema(arrRhr, 0.3)),
@@ -1100,7 +1133,8 @@ function obterMediasHistoricas() {
         debitoSono: Math.round(debitoMin / 60),
         rec7d: Math.round(rec7d),
         ultimoTurno: hist[hist.length - 1]?.turno || 'folga',
-        cargaCronica
+        cargaCronica,
+        tempMedia
     };
 }
 
@@ -1158,7 +1192,7 @@ function analisarRMSSD(rmssd, baseline, n) {
     return { ln, desvio };
 }
 
-function calcularRecovery(hrv, rmssd, rhr, rpm, spo2, pontuacaoSono, candles, estresse) {
+function calcularRecovery(hrv, rmssd, rhr, rpm, spo2, pontuacaoSono, candles, estresse, tempCorporal) {
     let scoreVFC = 50, scoreFCR = 50;
     let alertaInfeccao = false;
     let instabilidade = 0;
@@ -1169,7 +1203,12 @@ function calcularRecovery(hrv, rmssd, rhr, rpm, spo2, pontuacaoSono, candles, es
         scoreVFC = desvioHRV >= 10 ? 100 : desvioHRV >= 5 ? 90 : desvioHRV >= 0 ? 75 : desvioHRV >= -5 ? 60 : desvioHRV >= -10 ? 40 : desvioHRV >= -20 ? 20 : 5;
         const desvioRHR = ((rhr - candles.rhr) / candles.rhr) * 100;
         scoreFCR = desvioRHR <= -5 ? 100 : desvioRHR <= 0 ? 80 : desvioRHR <= 5 ? 60 : desvioRHR <= 10 ? 35 : 15;
+        // Detecção de infecção: HRV + FCR + Resp + Temperatura
+        const tempAlerta = tempCorporal != null && candles.tempMedia != null
+            ? tempCorporal >= candles.tempMedia + 0.5  // 0.5°C acima da SUA média
+            : tempCorporal != null && tempCorporal >= 37.5; // fallback: febre convencional
         if (hrv <= candles.hrv * 0.88 && rhr >= candles.rhr * 1.07 && rpm >= candles.rpm + 0.5) alertaInfeccao = true;
+        if (tempAlerta && (hrv <= candles.hrv * 0.92 || rhr >= candles.rhr * 1.05)) alertaInfeccao = true;
         const hist = lerHistorico();
         if (hist.length >= 5) {
             const ult7 = hist.slice(-7).map(c => c.hrv).filter(v => v > 0);
@@ -1311,11 +1350,20 @@ function calcularBateria(recovery, peso) {
         dTreino = Math.round((rpe * treinoTempo) / 10);
         dTreino = Math.min(dTreino, 30);
     }
+    // PASSOS → descarga por distância percorrida
+    const passos = getInt('in-passos', 0);
+    const distKm = (passos * 0.00075); // ~75cm por passo
+    let dPassos = 0;
+    if (distKm >= 15) dPassos = 20;
+    else if (distKm >= 10) dPassos = 15;
+    else if (distKm >= 5) dPassos = 10;
+    else if (distKm >= 2) dPassos = 5;
+
     const estresse = getInt('in-estresse');
     let dEstresse = 0;
     if (estresse > 75) dEstresse = 15;
     else if (estresse > 60) dEstresse = 10;
-    const totalDescarga = dTurno + dTreino + dEstresse;
+    const totalDescarga = dTurno + dTreino + dPassos + dEstresse;
     let rRecovery = 0;
     if (recBotas) rRecovery += 5;
     if (recPistola) rRecovery += 5;
@@ -1335,7 +1383,7 @@ function calcularBateria(recovery, peso) {
     else if (agora >= 40) status = 'ATENÇÃO';
     else if (agora >= 20) status = 'CANSADO';
     else status = 'LIMITE';
-    return { inicial, agora, status, dTurno, dTreino, dEstresse, totalDescarga, rRecovery, rNutricao, totalRecarga };
+    return { inicial, agora, status, dTurno, dTreino, dPassos, dEstresse, totalDescarga, rRecovery, rNutricao, totalRecarga };
 }
 
 function atualizarMural(rec, sono, candles, alertaInfeccao) {
@@ -1539,7 +1587,25 @@ function motorGeral() {
     }
 
     const candles = obterMediasHistoricas();
-    const rec = calcularRecovery(hrv, rmssd, rhr, rpm, spo2, sono.score, candles, estresse);
+    const tempCorporal = getNum('in-temp-corporal', null);
+
+    // Mostrar baseline temperatura
+    const baseTemp = getEl('base-temp');
+    const tempStatus = getEl('temp-status');
+    if (baseTemp && tempStatus && tempCorporal != null) {
+        const mediaTemp = candles && candles.tempMedia ? candles.tempMedia.toFixed(1) + '°C' : '--';
+        baseTemp.textContent = mediaTemp;
+        if (candles && candles.tempMedia) {
+            const diff = tempCorporal - candles.tempMedia;
+            if (diff >= 0.5) { tempStatus.textContent = '🔴 +' + diff.toFixed(1) + '°C — acima da média'; tempStatus.className = 'neg'; }
+            else if (diff >= 0.3) { tempStatus.textContent = '🟡 +' + diff.toFixed(1) + '°C — atenção'; tempStatus.className = 'warn'; }
+            else { tempStatus.textContent = '🟢 Normal'; tempStatus.className = 'pos'; }
+        } else {
+            tempStatus.textContent = tempCorporal >= 37.5 ? '🔴 Febre' : tempCorporal >= 37.2 ? '🟡 Elevada' : '🟢 Normal';
+        }
+    }
+
+    const rec = calcularRecovery(hrv, rmssd, rhr, rpm, spo2, sono.score, candles, estresse, tempCorporal);
     setText('val-detail-recovery', rec.score + '%');
     atualizarAnel('ring-detail-recovery', rec.score, CIRC_DETAIL);
     const rDR = getEl('ring-detail-recovery');
@@ -1602,6 +1668,7 @@ function motorGeral() {
     if (rBat) rBat.style.stroke = corPorScore(bateria.agora);
     setText('bat-d-turno', '−' + bateria.dTurno);
     setText('bat-d-treino', '−' + bateria.dTreino);
+    setText('bat-d-passos', '−' + bateria.dPassos);
     setText('bat-d-estresse', '−' + bateria.dEstresse);
     setText('bateria-descarga-total', '−' + bateria.totalDescarga);
     setText('bat-r-recovery', '+' + bateria.rRecovery);
@@ -1620,8 +1687,82 @@ function motorGeral() {
         setText('central-rec', candles.rec7d + '%');
         setText('central-sono', candles.debitoSono + 'h');
         setText('central-total', candles.totalDias);
+        renderGraficoSono();
     }
     salvarInputs();
+}
+
+function renderGraficoSono() {
+    const hist = lerHistorico();
+    const grafico = getEl('grafico-sono');
+    const labels = getEl('grafico-sono-labels');
+    const mediaEl = getEl('grafico-sono-media');
+    const metaLinha = getEl('grafico-meta-linha');
+    if (!grafico || !hist.length) return;
+
+    const ultimos = hist.slice(-10);
+    const maxH = 10;
+    const alturaPx = 100;
+    grafico.innerHTML = '';
+    labels.innerHTML = '';
+
+    // Linha meta 8h
+    if (metaLinha) metaLinha.style.bottom = ((8 / maxH) * alturaPx) + 'px';
+
+    let totalMin = 0;
+    ultimos.forEach((ciclo, i) => {
+        const sono = ciclo.sono || {};
+        const leveMin = (sono.leveHoras || 0) * 60 + (sono.leveMinutos || 0);
+        const profMin = (sono.profHoras || 0) * 60 + (sono.profMinutos || 0);
+        const remMin  = (sono.remHoras  || 0) * 60 + (sono.remMinutos  || 0);
+        const totalMinCiclo = leveMin + profMin + remMin;
+        totalMin += totalMinCiclo;
+
+        const totalH = totalMinCiclo / 60;
+        const alturaTotal = Math.min(totalH / maxH, 1) * alturaPx;
+        const corBase = totalH >= 8 ? 'var(--accent-green)' : totalH >= 6 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = `flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:${alturaPx}px;gap:1px;cursor:default;`;
+        wrap.title = totalH.toFixed(1) + 'h';
+
+        const addSeg = (h, cor) => {
+            if (h <= 0) return;
+            const seg = document.createElement('div');
+            seg.style.cssText = `height:${h}px;background:${cor};border-radius:2px;opacity:0.9;`;
+            wrap.appendChild(seg);
+        };
+
+        if (totalMinCiclo > 0) {
+            const altRem  = alturaTotal * (totalMinCiclo > 0 ? remMin  / totalMinCiclo : 0);
+            const altProf = alturaTotal * (totalMinCiclo > 0 ? profMin / totalMinCiclo : 0);
+            const altLeve = alturaTotal * (totalMinCiclo > 0 ? leveMin / totalMinCiclo : 0);
+            addSeg(altRem,  '#f472b6');
+            addSeg(altProf, 'var(--accent-purple)');
+            addSeg(altLeve, 'var(--accent-blue)');
+        } else {
+            addSeg(3, 'var(--border)');
+        }
+
+        // Borda colorida embaixo
+        const linha = document.createElement('div');
+        linha.style.cssText = `height:2px;background:${corBase};border-radius:1px;margin-top:2px;`;
+        wrap.appendChild(linha);
+        grafico.appendChild(wrap);
+
+        // Label dia
+        const lbl = document.createElement('div');
+        lbl.style.cssText = `flex:1;text-align:center;font-size:9px;color:${i === ultimos.length-1 ? 'var(--accent-teal)' : 'var(--text-muted)'};letter-spacing:0;`;
+        const d = new Date(ciclo.ts || Date.now());
+        lbl.textContent = ['D','S','T','Q','Q','S','S'][d.getDay()];
+        labels.appendChild(lbl);
+    });
+
+    if (ultimos.length > 0 && mediaEl) {
+        const mediaH = (totalMin / ultimos.length / 60).toFixed(1);
+        mediaEl.textContent = `Média: ${mediaH}h por ciclo`;
+        mediaEl.style.color = parseFloat(mediaH) >= 7 ? 'var(--accent-green)' : parseFloat(mediaH) >= 5.5 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+    }
 }
 
 function atualizarDayCounter() {
@@ -1715,6 +1856,7 @@ function aplicarBridgeData(manual) {
         if (s.rpm) { setV('in-rpm', s.rpm); mudou = true; }
         if (s.spo2) { setV('in-spo2', s.spo2); mudou = true; }
         if (s.estresse != null && s.estresse > 0) { setV('in-estresse', s.estresse); mudou = true; }
+        if (s.tempCorporal != null && s.tempCorporal > 35) { setV('in-temp-corporal', s.tempCorporal); mudou = true; }
         if (s.cocholoMin != null && s.cocholoMin > 0) { setV('in-cochilo', s.cocholoMin); mudou = true; }
         if (s.tipoSono === 'dia' || s.tipoSono === 'noite') setTipoSono(s.tipoSono);
         resumoMsg.push('SLEEP');
