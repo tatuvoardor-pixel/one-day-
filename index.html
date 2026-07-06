@@ -133,11 +133,11 @@
         .briefing-card.illness { border-color: rgba(168, 85, 247, 0.45); background: rgba(168, 85, 247, 0.06); }
         .briefing-icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
         .briefing-mid { flex: 1; min-width: 0; }
-        .briefing-mid-label { font-size: 10px; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; }
-        .briefing-mid-titulo { font-size: 14px; color: var(--text-primary); line-height: 1.2; font-weight: 600; }
+        .briefing-mid-label { font-size: 10px; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; white-space: nowrap; }
+        .briefing-mid-titulo { font-size: 14px; color: var(--text-primary); line-height: 1.2; font-weight: 600; white-space: nowrap; }
         .briefing-arrow { color: var(--text-muted); font-size: 18px; flex-shrink: 0; }
         .rings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-        .ring-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 12px 6px 12px; cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease; min-width: 0; text-align: center; }
+        .ring-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 12px 10px 12px; cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease; min-width: 0; text-align: center; overflow: hidden; }
         .ring-card:active { transform: scale(0.96); border-color: var(--accent-teal); }
         .ring-svg-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 95px; margin: 0 auto 8px; }
         .ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -336,7 +336,7 @@
             <button class="briefing-card" id="briefing-card" onclick="abrirTela('briefing')" type="button">
                 <div class="briefing-icon" id="briefing-icon">⚪</div>
                 <div class="briefing-mid">
-                    <div class="briefing-mid-label">▌ Briefing do Dia</div>
+                    <div class="briefing-mid-label">▌ Daily Briefing</div>
                     <div class="briefing-mid-titulo" id="briefing-titulo">Aguardando dados...</div>
                 </div>
                 <div class="briefing-arrow">›</div>
@@ -544,10 +544,10 @@
             <div class="stat-card"><span class="stat-card-label">Tonelagem Movimentada</span><span class="stat-card-value orange"><span id="out-tonelagem">0.0</span> ton</span></div>
             <div class="section-title">🏋️ Treino Opcional</div>
             <div class="toggle-group cols-2">
-                <button class="toggle-btn" id="btn-treino-nenhum" onclick="setTreinoTipo('nenhum')" type="button">Nenhum</button>
-                <button class="toggle-btn" id="btn-treino-forca" onclick="setTreinoTipo('forca')" type="button">Força</button>
-                <button class="toggle-btn" id="btn-treino-aerobico" onclick="setTreinoTipo('aerobico')" type="button">Aeróbico</button>
-                <button class="toggle-btn" id="btn-treino-alongamento" onclick="setTreinoTipo('alongamento')" type="button">Alongamento</button>
+                <button class="toggle-btn" id="btn-treino-forca" onclick="toggleTreinoCentral('forca')" type="button">Força</button>
+                <button class="toggle-btn" id="btn-treino-aerobico" onclick="toggleTreinoCentral('aerobico')" type="button">Aeróbico</button>
+                <button class="toggle-btn" id="btn-treino-alongamento" onclick="toggleTreinoCentral('alongamento')" type="button">Alongamento</button>
+                <button class="toggle-btn" id="btn-treino-outro" onclick="toggleTreinoCentral('outro')" type="button">Outro</button>
             </div>
             <div class="input-row">
                 <div class="input-row-label">Tempo<small>Duração do treino</small></div>
@@ -819,7 +819,7 @@
             </button>
 
             <div style="margin-top: 30px; text-align: center; color: var(--text-dim); font-size: 11px; letter-spacing: 0.2em;">
-                MAX.CORE · v1.7<br>
+                MAX.CORE · v1.8<br>
                 <span style="opacity: 0.5;">Sleep label · fix arco Recovery</span>
                 <span style="opacity: 0.5;">Gasto calórico realista</span>
             </div>
@@ -854,7 +854,7 @@ let locaisLesao = [];
 let tipoSono = 'noite';
 let recBotas = false;
 let recPistola = false;
-let treinoTipo = 'nenhum';
+let treinoTipos = JSON.parse(localStorage.getItem('bio_treino_tipos') || '[]');
 
 function clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
 function formatMin(min) {
@@ -1012,12 +1012,37 @@ function setTipoSono(tipo) {
     motorGeral();
 }
 
+function toggleTreinoCentral(tipo) {
+    const idx = treinoTipos.indexOf(tipo);
+    if (idx >= 0) treinoTipos.splice(idx, 1);
+    else treinoTipos.push(tipo);
+    localStorage.setItem('bio_treino_tipos', JSON.stringify(treinoTipos));
+    ['forca','aerobico','alongamento','outro'].forEach(t => {
+        const btn = getEl('btn-treino-'+t);
+        if (btn) btn.classList.toggle('active', treinoTipos.indexOf(t) >= 0);
+    });
+    motorGeral();
+}
+
+function getTreinoTipoPrincipal() {
+    if (treinoTipos.includes('forca')) return 'forca';
+    if (treinoTipos.includes('aerobico')) return 'aerobico';
+    if (treinoTipos.includes('alongamento')) return 'alongamento';
+    if (treinoTipos.length > 0) return 'outro';
+    return 'nenhum';
+}
+
+// Mantém compatibilidade com código antigo que usa treinoTipo
+Object.defineProperty(window, 'treinoTipo', { get: function() { return getTreinoTipoPrincipal(); } });
+
 function setTreinoTipo(tipo) {
-    treinoTipo = tipo;
-    localStorage.setItem('bio_treino_tipo', tipo);
-    ['nenhum', 'forca', 'aerobico', 'alongamento'].forEach(t => {
-        const b = getEl('btn-treino-' + t);
-        if (b) b.classList.toggle('active', t === tipo);
+    // Mantido para compatibilidade com BioBridge
+    if (tipo === 'nenhum') { treinoTipos = []; }
+    else if (!treinoTipos.includes(tipo)) { treinoTipos.push(tipo); }
+    localStorage.setItem('bio_treino_tipos', JSON.stringify(treinoTipos));
+    ['forca','aerobico','alongamento','outro'].forEach(t => {
+        const btn = getEl('btn-treino-'+t);
+        if (btn) btn.classList.toggle('active', treinoTipos.indexOf(t) >= 0);
     });
     motorGeral();
 }
@@ -1308,7 +1333,7 @@ function atualizarMural(rec, sono, candles, alertaInfeccao) {
     const text = getEl('mural-text');
     if (!box || !text) return;
     box.classList.remove('alert', 'warn', 'illness');
-    let html, labelTxt = '▌ Briefing do Dia';
+    let html, labelTxt = '▌ Daily Briefing';
     let cardIcone = '⚪', cardTitulo = '', cardTipo = '';
 
     // ALERTAS CRÍTICOS
