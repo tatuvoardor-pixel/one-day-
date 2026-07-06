@@ -213,6 +213,11 @@
         .toggle-btn.active.tired { background: rgba(234, 179, 8, 0.15); color: var(--accent-yellow); border-color: rgba(234, 179, 8, 0.5); }
         .toggle-btn.active.sick { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border-color: rgba(168, 85, 247, 0.5); }
         .toggle-btn.active.injury { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.5); }
+        /* Treinos múltiplos — cores por tipo */
+        #btn-treino-forca.active { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.5); }
+        #btn-treino-aerobico.active { background: rgba(45,212,191,0.15); color: var(--accent-teal); border-color: rgba(45,212,191,0.5); }
+        #btn-treino-alongamento.active { background: rgba(74,222,128,0.15); color: var(--accent-green); border-color: rgba(74,222,128,0.5); }
+        #btn-treino-outro.active { background: rgba(168,85,247,0.15); color: var(--accent-purple); border-color: rgba(168,85,247,0.5); }
         .toggle-btn.active.rec { background: rgba(96, 165, 250, 0.15); color: var(--accent-blue); border-color: rgba(96, 165, 250, 0.5); }
         .sleep-bar { margin-top: 16px; margin-bottom: 16px; }
         .sleep-bar-track { display: flex; height: 32px; border-radius: 8px; overflow: hidden; background: var(--bg-card-deep); border: 1px solid var(--border); }
@@ -640,6 +645,12 @@
                 <div class="input-row-value"><input type="number" inputmode="numeric" id="in-tempo-acordado" value="0" oninput="motorGeral()"><span class="input-row-unit">min</span></div>
             </div>
             <div class="stat-card"><span class="stat-card-label">Eficiência do sono</span><span class="stat-card-value teal"><span id="out-eficiencia">--</span>%</span></div>
+
+            <div class="section-title">😴 Cochilo</div>
+            <div class="input-row">
+                <div class="input-row-label">Duração<small>Cochilo extra (opcional)</small></div>
+                <div class="input-row-value"><input type="number" inputmode="numeric" id="in-cochilo" value="0" oninput="motorGeral()"><span class="input-row-unit">min</span></div>
+            </div>
         </div>
     </section>
 
@@ -819,7 +830,7 @@
             </button>
 
             <div style="margin-top: 30px; text-align: center; color: var(--text-dim); font-size: 11px; letter-spacing: 0.2em;">
-                MAX.CORE · v2.0<br>
+                MAX.CORE · v2.2<br>
                 <span style="opacity: 0.5;">Sleep label · fix arco Recovery</span>
                 <span style="opacity: 0.5;">Gasto calórico realista</span>
             </div>
@@ -1704,6 +1715,7 @@ function aplicarBridgeData(manual) {
         if (s.rpm) { setV('in-rpm', s.rpm); mudou = true; }
         if (s.spo2) { setV('in-spo2', s.spo2); mudou = true; }
         if (s.estresse != null && s.estresse > 0) { setV('in-estresse', s.estresse); mudou = true; }
+        if (s.cocholoMin != null && s.cocholoMin > 0) { setV('in-cochilo', s.cocholoMin); mudou = true; }
         if (s.tipoSono === 'dia' || s.tipoSono === 'noite') setTipoSono(s.tipoSono);
         resumoMsg.push('SLEEP');
     }
