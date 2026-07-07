@@ -139,10 +139,10 @@
         .rings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
         .ring-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 12px 10px 12px; cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease; min-width: 0; text-align: center; overflow: hidden; }
         .ring-card:active { transform: scale(0.96); border-color: var(--accent-teal); }
-        .ring-svg-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 110px; margin: 0 auto 8px; overflow: hidden; border-radius: 50%; }
+        .ring-svg-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 95px; margin: 0 auto 8px; }
         .ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
         .ring-bg-track { fill: none; stroke: var(--border); stroke-width: 3.2; }
-        .ring-progress { fill: none; stroke-width: 3.2; stroke-linecap: butt; stroke-dasharray: 94.24; stroke-dashoffset: 94.24; transition: stroke-dashoffset 0.7s cubic-bezier(0.32, 0.72, 0, 1), stroke 0.4s ease; }
+        .ring-progress { fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 94.24; stroke-dashoffset: 94.24; transition: stroke-dashoffset 0.7s cubic-bezier(0.32, 0.72, 0, 1), stroke 0.4s ease; }
         .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
         .ring-value { font-size: clamp(24px, 6.5vw, 30px); color: var(--text-primary); line-height: 1; }
         .ring-unit { font-size: clamp(10px, 2.5vw, 12px); color: var(--text-muted); letter-spacing: 0.12em; margin-top: 2px; }
@@ -861,7 +861,7 @@
             </button>
 
             <div style="margin-top: 30px; text-align: center; color: var(--text-dim); font-size: 11px; letter-spacing: 0.2em;">
-                MAX.CORE · v2.5<br>
+                MAX.CORE · v3.2<br>
                 <span style="opacity: 0.5;">Sleep label · fix arco Recovery</span>
                 <span style="opacity: 0.5;">Gasto calórico realista</span>
             </div>
