@@ -522,8 +522,10 @@
     </div>
     <div class="section-title">🛠️ Intervenção / Recovery Ativo</div>
     <div class="toggle-group cols-2">
-      <button class="toggle-btn" id="btn-rec-botas" onclick="toggleRec('botas')" type="button">Botas Compressão</button>
-      <button class="toggle-btn" id="btn-rec-pistola" onclick="toggleRec('pistola')" type="button">Pistola Fascial</button>
+      <button class="toggle-btn" id="btn-rec-botas" onclick="toggleRec('botas')" type="button">🦵 Botas Compressão</button>
+      <button class="toggle-btn" id="btn-rec-gelado" onclick="toggleRec('gelado')" type="button">🧊 Banho Gelado</button>
+      <button class="toggle-btn" id="btn-rec-sol" onclick="toggleRec('sol')" type="button">☀️ Banho de Sol</button>
+      <button class="toggle-btn" id="btn-rec-meditacao" onclick="toggleRec('meditacao')" type="button">🧘 Meditação</button>
     </div>
   </div>
 </section>
@@ -552,7 +554,7 @@
     <div class="battery-section">
       <div class="battery-section-head"><span>▲ Recargas Hoje</span><span class="battery-section-total recarga" id="bateria-recarga-total">+0</span></div>
       <div id="bateria-recargas">
-        <div class="battery-line"><span>Recovery ativo</span><span id="bat-r-recovery">0</span></div>
+        <div class="battery-line"><span>Intervenções</span><span id="bat-r-recovery">0</span></div>
         <div class="battery-line"><span>Nutrição completa</span><span id="bat-r-nutricao">0</span></div>
       </div>
     </div>
@@ -599,6 +601,31 @@
       <div id="grafico-sono-labels" style="display:flex;gap:4px;margin-top:4px;"></div>
       <div style="text-align:center;margin-top:8px;font-size:10px;color:var(--text-muted);" id="grafico-sono-media"></div>
     </div>
+    <div class="section-title">📅 Calendário de Recuperação</div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <button onclick="mudarMesCalendario(-1)" type="button" style="background:none;border:1px solid var(--border);color:var(--text-secondary);width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;font-family:inherit;">‹</button>
+        <div id="cal-titulo" style="font-size:13px;letter-spacing:0.15em;color:var(--text-primary);text-transform:uppercase;"></div>
+        <button onclick="mudarMesCalendario(1)" type="button" style="background:none;border:1px solid var(--border);color:var(--text-secondary);width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;font-family:inherit;">›</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;">
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">DOM</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">SEG</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">TER</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">QUA</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">QUI</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">SEX</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">SÁB</div>
+      </div>
+      <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;"></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:10px;color:var(--text-muted);letter-spacing:0.06em;">
+        <span>🟢 Bom ≥67%</span>
+        <span>🟡 Médio 34–66%</span>
+        <span>🔴 Crítico &lt;34%</span>
+        <span style="color:var(--text-dim);">T=Trabalho · F=Folga</span>
+      </div>
+    </div>
+
     <div class="toggle-group cols-2">
       <button class="toggle-btn" onclick="exportarDados()" type="button">⬇ Exportar</button>
       <button class="toggle-btn" onclick="document.getElementById('importFile').click()" type="button">⬆ Importar</button>
@@ -616,7 +643,7 @@
 <script src="bio-bridge.js"></script>
 <script>
 const CIRC_HOME=94.24,CIRC_DETAIL=282.74,ALTURA_FIXA=182,IDADE=37,FCMAX_REAL=195,MIN_ESFORCO_REAL_TURNO=240,JANELA_AGUDA=7,JANELA_CRONICA=28,MAX_HISTORICO=90;
-let telaAtual='home',intensidadeTurno='folga',estadoSaude='normal',grauSaude='moderado',locaisLesao=[],tipoSono='noite',recBotas=false,recPistola=false;
+let telaAtual='home',intensidadeTurno='folga',estadoSaude='normal',grauSaude='moderado',locaisLesao=[],tipoSono='noite',recBotas=false,recGelado=false,recSol=false,recMeditacao=false;
 let treinoTipos=JSON.parse(localStorage.getItem('bio_treino_tipos')||'[]');
 
 function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v));}
@@ -643,7 +670,7 @@ function abrirTela(nome){
   prox.classList.add('active');prox.classList.remove('behind');
   requestAnimationFrame(()=>{prox.scrollTop=0;});
   telaAtual=nome;
-  if(nome==='central'){atualizarSyncBadge();renderGraficoSono();}
+  if(nome==='central'){atualizarSyncBadge();renderGraficoSono();renderCalendario();}
   if(['recovery','strain','sono','energia','nutricao'].includes(nome)){if(typeof aplicarBridgeData==='function')aplicarBridgeData(false);}
 }
 function voltarHome(){
@@ -680,7 +707,22 @@ function toggleTreinoCentral(tipo){const idx=treinoTipos.indexOf(tipo);if(idx>=0
 function getTreinoTipoPrincipal(){if(treinoTipos.includes('forca'))return'forca';if(treinoTipos.includes('aerobico'))return'aerobico';if(treinoTipos.includes('alongamento'))return'alongamento';if(treinoTipos.length>0)return'outro';return'nenhum';}
 Object.defineProperty(window,'treinoTipo',{get:function(){return getTreinoTipoPrincipal();}});
 function setTreinoTipo(tipo){if(tipo==='nenhum'){treinoTipos=[];}else if(!treinoTipos.includes(tipo)){treinoTipos.push(tipo);}localStorage.setItem('bio_treino_tipos',JSON.stringify(treinoTipos));['forca','aerobico','alongamento','outro'].forEach(t=>{const btn=getEl('btn-treino-'+t);if(btn)btn.classList.toggle('active',treinoTipos.indexOf(t)>=0);});motorGeral();}
-function toggleRec(t){if(t==='botas')recBotas=!recBotas;if(t==='pistola')recPistola=!recPistola;localStorage.setItem('bio_rec_botas',String(recBotas));localStorage.setItem('bio_rec_pistola',String(recPistola));const bB=getEl('btn-rec-botas'),bP=getEl('btn-rec-pistola');bB.classList.toggle('active',recBotas);bB.classList.toggle('rec',recBotas);bP.classList.toggle('active',recPistola);bP.classList.toggle('rec',recPistola);motorGeral();}
+function toggleRec(t){
+  if(t==='botas')recBotas=!recBotas;
+  if(t==='gelado')recGelado=!recGelado;
+  if(t==='sol')recSol=!recSol;
+  if(t==='meditacao')recMeditacao=!recMeditacao;
+  localStorage.setItem('bio_rec_botas',String(recBotas));
+  localStorage.setItem('bio_rec_gelado',String(recGelado));
+  localStorage.setItem('bio_rec_sol',String(recSol));
+  localStorage.setItem('bio_rec_meditacao',String(recMeditacao));
+  ['botas','gelado','sol','meditacao'].forEach(r=>{
+    const val={botas:recBotas,gelado:recGelado,sol:recSol,meditacao:recMeditacao}[r];
+    const btn=getEl('btn-rec-'+r);
+    if(btn){btn.classList.toggle('active',val);btn.classList.toggle('rec',val);}
+  });
+  motorGeral();
+}
 
 function obterMediasHistoricas(){
   const hist=lerHistorico();if(hist.length===0)return null;
@@ -826,7 +868,12 @@ function calcularBateria(recovery,peso){
     if(passosBat>13000)dPassos=12;else if(passosBat>8000)dPassos=7;else if(passosBat>3000)dPassos=3;
   }
   const totalDescarga=dTurno+dTreino+dEstresse+dPassos;
-  let rRecovery=0;if(recBotas)rRecovery+=5;if(recPistola)rRecovery+=5;
+  let rRecovery=0;
+  if(recBotas)rRecovery+=5;
+  if(recGelado)rRecovery+=4;
+  if(recSol)rRecovery+=4;
+  if(recMeditacao)rRecovery+=5;
+  rRecovery=Math.min(rRecovery,12);
   const protConsumida=getInt('in-prot'),aguaConsumida=getInt('in-agua');
   const mm=peso*(1-getNum('in-bf',22)/100),targetProt=Math.round(mm*2.5),targetAgua=Math.round(peso*35);
   let rNutricao=0;
@@ -1081,8 +1128,8 @@ function confirmarEncerrarCiclo(){
 function resetarCampos(){
   ['in-passos','in-cal','in-prot','in-carb','in-agua','in-treino-tempo','in-treino-fc','in-paletes','in-marreta','in-reator','in-despertares','in-tempo-acordado','in-cochilo'].forEach(id=>{const el=getEl(id);if(el)el.value=0;});
   setV('in-fc-turno',120);setV('in-spo2',97);setV('in-estresse',30);setV('in-temp',36.5);
-  recBotas=false;recPistola=false;localStorage.setItem('bio_rec_botas','false');localStorage.setItem('bio_rec_pistola','false');
-  const btnB=getEl('btn-rec-botas'),btnP=getEl('btn-rec-pistola');if(btnB)btnB.classList.remove('active','rec');if(btnP)btnP.classList.remove('active','rec');
+  recBotas=false;recGelado=false;recSol=false;recMeditacao=false;
+  ['botas','gelado','sol','meditacao'].forEach(r=>{localStorage.setItem('bio_rec_'+r,'false');const btn=getEl('btn-rec-'+r);if(btn)btn.classList.remove('active','rec');});
   setTurno('folga');setSaude('normal');setTipoSono('noite');setTreinoTipo('nenhum');
 }
 
@@ -1090,15 +1137,68 @@ function exportarDados(){try{const data={};for(let i=0;i<localStorage.length;i++
 function importarDados(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=(e)=>{try{const d=JSON.parse(e.target.result);for(const k in d){if(k.startsWith('bio_')||k.startsWith('maxcore_'))localStorage.setItem(k,d[k]);}toast('Backup importado! Recarregando...','success');setTimeout(()=>location.reload(),1500);}catch(e){toast('Arquivo inválido','error');}};r.readAsText(f);}
 function resetarHistorico(){if(!confirm('Apagar TODO o histórico? Esta ação não pode ser desfeita.'))return;if(!confirm('Tem certeza absoluta? Vai começar do DAY 1.'))return;localStorage.removeItem('bio_historico_ciclos');localStorage.removeItem('maxcore_data_inicio');toast('Histórico apagado. Recarregando...','success');setTimeout(()=>location.reload(),1500);}
 
+let calMesOffset=0;
+function mudarMesCalendario(dir){calMesOffset+=dir;renderCalendario();}
+
+function renderCalendario(){
+  const hist=lerHistorico();
+  const agora=new Date();
+  const mesAlvo=new Date(agora.getFullYear(),agora.getMonth()+calMesOffset,1);
+  const ano=mesAlvo.getFullYear(),mes=mesAlvo.getMonth();
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  setText('cal-titulo',meses[mes]+' '+ano);
+  // Mapeia histórico por data
+  const mapa={};
+  hist.forEach(c=>{
+    const ts=c.ts||c.timestamp;if(!ts)return;
+    const d=new Date(ts);
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    mapa[key]={score:c.recovery_score||0,turno:c.turno||'folga'};
+  });
+  const grid=getEl('cal-grid');if(!grid)return;grid.innerHTML='';
+  const primeiroDia=new Date(ano,mes,1).getDay();
+  const ultimoDia=new Date(ano,mes+1,0).getDate();
+  const hoje=new Date();
+  // Células vazias antes do dia 1
+  for(let i=0;i<primeiroDia;i++){grid.appendChild(document.createElement('div'));}
+  for(let dia=1;dia<=ultimoDia;dia++){
+    const key=ano+'-'+String(mes+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+    const dado=mapa[key];
+    const eHoje=hoje.getFullYear()===ano&&hoje.getMonth()===mes&&hoje.getDate()===dia;
+    let bg='var(--bg-card-deep)',border='var(--border-soft)',label='',scoreText='';
+    if(dado){
+      label=dado.turno==='folga'?'F':'T';
+      scoreText=dado.score+'%';
+      if(dado.score>=67){bg='rgba(74,222,128,0.15)';border='rgba(74,222,128,0.4)';}
+      else if(dado.score>=34){bg='rgba(234,179,8,0.15)';border='rgba(234,179,8,0.4)';}
+      else{bg='rgba(239,68,68,0.15)';border='rgba(239,68,68,0.4)';}
+    }
+    const cell=document.createElement('div');
+    cell.style.cssText='background:'+bg+';border:1px solid '+border+';border-radius:8px;padding:4px 2px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;'+(eHoje?'box-shadow:0 0 0 1.5px var(--accent-teal);':'');
+    const numEl=document.createElement('div');
+    numEl.style.cssText='font-size:12px;color:'+(eHoje?'var(--accent-teal)':dado?'var(--text-primary)':'var(--text-dim)')+';';
+    numEl.textContent=dia;cell.appendChild(numEl);
+    if(dado){
+      const lblEl=document.createElement('div');lblEl.style.cssText='font-size:9px;color:var(--text-muted);letter-spacing:0.05em;';lblEl.textContent=label;cell.appendChild(lblEl);
+      const scEl=document.createElement('div');scEl.style.cssText='font-size:9px;color:var(--text-secondary);';scEl.textContent=scoreText;cell.appendChild(scEl);
+    }
+    grid.appendChild(cell);
+  }
+}
+
 function inicializar(){
   restaurarInputs();
   const t=localStorage.getItem('bio_turno')||'folga',s=localStorage.getItem('bio_saude')||'normal',g=localStorage.getItem('bio_grau')||'moderado',ts=localStorage.getItem('bio_tipo_sono')||'noite',tt=localStorage.getItem('bio_treino_tipo')||'nenhum';
   const ttArray=JSON.parse(localStorage.getItem('bio_treino_tipos')||'null');
   if(ttArray&&ttArray.length>0){treinoTipos=ttArray;treinoTipos.forEach(t=>{const btn=getEl('btn-treino-'+t);if(btn)btn.classList.add('active');});}else{setTreinoTipo(tt);}
-  if(localStorage.getItem('bio_rec_pistola')==='true')recPistola=true;
+  if(localStorage.getItem('bio_rec_gelado')==='true')recGelado=true;
+  if(localStorage.getItem('bio_rec_sol')==='true')recSol=true;
+  if(localStorage.getItem('bio_rec_meditacao')==='true')recMeditacao=true;
   grauSaude=g;setTurno(t);setSaude(s);setGrauSaude(g);setTipoSono(ts);
-  if(recBotas){const b=getEl('btn-rec-botas');if(b)b.classList.add('active','rec');}
-  if(recPistola){const b=getEl('btn-rec-pistola');if(b)b.classList.add('active','rec');}
+  ['botas','gelado','sol','meditacao'].forEach(r=>{
+    const val={botas:recBotas,gelado:recGelado,sol:recSol,meditacao:recMeditacao}[r];
+    const btn=getEl('btn-rec-'+r);if(btn&&val)btn.classList.add('active','rec');
+  });
   motorGeral();
   if(typeof BioBridge!=='undefined'){aplicarBridgeData(false);BioBridge.listen((data,source)=>{console.log('[BioBridge] Sync de:',source);aplicarBridgeData(false);});}
 }
