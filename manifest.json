@@ -1,39 +1,1211 @@
-{
-  "name": "MAX.CORE BioMetrics",
-  "short_name": "MAX.CORE",
-  "description": "Sistema biométrico para shift workers",
-  "start_url": "./",
-  "scope": "./",
-  "display": "fullscreen",
-  "display_override": ["fullscreen", "standalone"],
-  "orientation": "portrait",
-  "background_color": "#0c0c0e",
-  "theme_color": "#0c0c0e",
-  "lang": "pt-BR",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ]
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+    <meta name="theme-color" content="#0c0c0e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MAX.CORE">
+    <meta name="description" content="MAX.CORE — Sistema biométrico.">
+    <title>MAX.CORE — BioMetrics</title>
+    <script>
+    (function(){
+      var ico='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">'+
+        '<rect width="512" height="512" rx="112" fill="#0c0c0e"/>'+
+        '<circle cx="256" cy="256" r="180" fill="none" stroke="#2dd4bf" stroke-width="14"/>'+
+        '<path d="M120 256 L200 256 L230 180 L290 332 L320 256 L392 256" fill="none" stroke="#2dd4bf" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>'+
+        '</svg>';
+      var iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico);
+      var mf={name:"MAX.CORE BioMetrics",short_name:"MAX.CORE",display:"standalone",display_override:["fullscreen","standalone"],orientation:"portrait",start_url:"./",scope:"./",background_color:"#0c0c0e",theme_color:"#0c0c0e",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
+      var ml=document.createElement('link');ml.rel='manifest';ml.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(mf));document.head.appendChild(ml);
+      var il=document.createElement('link');il.rel='apple-touch-icon';il.href=iUrl;document.head.appendChild(il);
+      var il2=document.createElement('link');il2.rel='icon';il2.href=iUrl;document.head.appendChild(il2);
+    })();
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; width: 100%; overflow: hidden; }
+        html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+        body { font-family: 'Lilita One', cursive, sans-serif; background: #0c0c0e; color: #e5e5e5; max-width: 100vw; touch-action: manipulation; user-select: none; -webkit-user-select: none; letter-spacing: 0.02em; }
+        input, textarea, select, .input-row input { user-select: text; -webkit-user-select: text; font-family: inherit; font-size: 16px !important; }
+        :root {
+            --bg-base: #0c0c0e; --bg-card: #141417; --bg-card-deep: #09090b;
+            --border: #222226; --border-soft: #1a1a1f;
+            --text-primary: #e5e5e5; --text-secondary: #a3a3a3; --text-muted: #71717a; --text-dim: #52525b;
+            --accent-teal: #2dd4bf; --accent-yellow: #eab308; --accent-purple: #a855f7;
+            --accent-red: #ef4444; --accent-blue: #60a5fa; --accent-orange: #f97316; --accent-green: #4ade80;
+        }
+        #app { position: relative; width: 100%; height: 100%; max-width: 100vw; overflow: hidden; }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; opacity: 0; pointer-events: none; transform: translateX(100%); transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.32s ease; }
+        .screen.active { opacity: 1; pointer-events: auto; transform: translateX(0); }
+        .screen.behind { transform: translateX(-15%); opacity: 0.3; }
+        .screen-inner { padding: max(env(safe-area-inset-top, 0px), 14px) 14px max(env(safe-area-inset-bottom, 0px), 32px); min-height: 100%; display: flex; flex-direction: column; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; padding: 4px 0 12px; gap: 10px; min-height: 44px; }
+        .topbar-btn { background: none; border: 1px solid var(--border); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 12px; font-size: 22px; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.12s ease; }
+        .topbar-btn:active { transform: scale(0.92); }
+        .topbar-title { font-size: 13px; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; flex: 1; text-align: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .brand-mark { font-size: clamp(20px, 5vw, 24px); letter-spacing: 0.13em; color: var(--text-primary); line-height: 1.1; }
+        .brand-mark span { color: var(--accent-teal); }
+        .brand-tagline { font-size: 10px; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+        .day-counter { font-size: 10px; letter-spacing: 0.2em; color: var(--text-muted); text-transform: uppercase; text-align: right; line-height: 1.3; }
+        .day-counter strong { color: var(--text-primary); font-size: 15px; display: block; letter-spacing: 0.1em; }
+        .bridge-flash { position: fixed; top: max(env(safe-area-inset-top, 0px), 8px); right: 12px; background: var(--bg-card); border: 1px solid var(--accent-teal); color: var(--accent-teal); padding: 6px 12px; border-radius: 20px; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; z-index: 50; opacity: 0; pointer-events: none; transform: translateY(-10px); transition: opacity 0.3s ease, transform 0.3s ease; }
+        .bridge-flash.show { opacity: 1; transform: translateY(0); }
+        .calib-badge { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; display: none; align-items: center; gap: 10px; }
+        .calib-badge.show { display: flex; }
+        .calib-badge-label { font-size: 11px; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; white-space: nowrap; }
+        .calib-bar { flex: 1; height: 6px; background: var(--border); border-radius: 6px; overflow: hidden; min-width: 0; }
+        .calib-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent-teal), var(--accent-purple)); border-radius: 6px; transition: width 0.6s ease; }
+        .mural { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; transition: border-color 0.3s ease, background 0.3s ease; }
+        .mural.alert { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.06); }
+        .mural.warn  { border-color: rgba(234,179,8,0.4); background: rgba(234,179,8,0.05); }
+        .mural.illness { border-color: rgba(168,85,247,0.45); background: rgba(168,85,247,0.06); }
+        .mural-label { font-size: 10px; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+        .mural-text { font-size: clamp(14px, 3.8vw, 16px); line-height: 1.4; color: var(--text-primary); word-wrap: break-word; overflow-wrap: break-word; }
+        .mural-text strong { color: var(--accent-teal); }
+        .mural-text .hi-y { color: var(--accent-yellow); }
+        .mural-text .hi-r { color: var(--accent-red); }
+        .mural-text .hi-g { color: var(--accent-green); }
+        .mural-text .hi-p { color: var(--accent-purple); }
+        .briefing-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease; width: 100%; text-align: left; font-family: inherit; }
+        .briefing-card:active { transform: scale(0.98); border-color: var(--accent-teal); }
+        .briefing-card.alert { border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.08); }
+        .briefing-card.warn { border-color: rgba(234,179,8,0.45); background: rgba(234,179,8,0.06); }
+        .briefing-card.good { border-color: rgba(34,197,94,0.45); background: rgba(34,197,94,0.06); }
+        .briefing-card.illness { border-color: rgba(168,85,247,0.45); background: rgba(168,85,247,0.06); }
+        .briefing-icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
+        .briefing-mid { flex: 1; min-width: 0; }
+        .briefing-mid-label { font-size: 10px; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; white-space: nowrap; }
+        .briefing-mid-titulo { font-size: 14px; color: var(--text-primary); line-height: 1.2; font-weight: 600; white-space: nowrap; }
+        .briefing-arrow { color: var(--text-muted); font-size: 18px; flex-shrink: 0; }
+        /* CIRCULO MAIOR: gap 5px, max-width 128px */
+        .rings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 14px; }
+        .ring-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 12px 10px 12px; cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease; min-width: 0; text-align: center; overflow: hidden; }
+        .ring-card:active { transform: scale(0.96); border-color: var(--accent-teal); }
+        .ring-svg-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 128px; margin: 0 auto 8px; overflow: hidden; border-radius: 50%; }
+        .ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .ring-bg-track { fill: none; stroke: var(--border); stroke-width: 3.2; }
+        .ring-progress { fill: none; stroke-width: 3.2; stroke-linecap: butt; stroke-dasharray: 94.24; stroke-dashoffset: 94.24; transition: stroke-dashoffset 0.7s cubic-bezier(0.32, 0.72, 0, 1), stroke 0.4s ease; }
+        .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        .ring-value { font-size: clamp(20px, 5.5vw, 26px); color: var(--text-primary); line-height: 1; }
+        .ring-unit { font-size: clamp(10px, 2.5vw, 12px); color: var(--text-muted); letter-spacing: 0.12em; margin-top: 2px; }
+        .ring-label { font-size: 11px; letter-spacing: 0.05em; color: var(--text-secondary); text-transform: uppercase; margin-top: 4px; display: block; white-space: nowrap; }
+        .ring-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .quick-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; transition: transform 0.15s ease; min-width: 0; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+        .quick-card:active { transform: scale(0.97); }
+        .quick-card-head { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+        .quick-card-title { font-size: 11px; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase; min-width: 0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .quick-card-arrow { color: var(--text-dim); font-size: 16px; flex-shrink: 0; }
+        .quick-card-value { font-size: clamp(22px, 5.6vw, 26px); color: var(--text-primary); line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .quick-card-sub { font-size: 12px; color: var(--text-muted); }
+        .quick-card.battery .quick-card-title { color: var(--accent-teal); }
+        .quick-card.nutricao .quick-card-title { color: var(--accent-orange); }
+        .quick-card.estado .quick-card-title { color: var(--accent-purple); }
+        .actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; padding-top: 20px; }
+        .btn { font-family: inherit; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; padding: 16px 10px; border-radius: 14px; cursor: pointer; transition: transform 0.12s ease; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn:active { transform: scale(0.97); }
+        .btn.primary { background: rgba(45,212,191,0.12); border-color: rgba(45,212,191,0.5); color: var(--accent-teal); }
+        .btn.purple { background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.5); color: var(--accent-purple); }
+        .detail-hero { display: flex; flex-direction: column; align-items: center; padding: 0 0 12px; }
+        .detail-ring-wrap { position: relative; width: clamp(120px, 35vw, 150px); aspect-ratio: 1 / 1; margin-bottom: 10px; }
+        .detail-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .detail-ring-bg { fill: none; stroke: var(--border); stroke-width: 5; }
+        .detail-ring-progress { fill: none; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 282.74; stroke-dashoffset: 282.74; transition: stroke-dashoffset 0.8s cubic-bezier(0.32, 0.72, 0, 1), stroke 0.4s ease; }
+        .detail-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .detail-ring-value { font-size: clamp(30px, 8vw, 38px); color: var(--text-primary); line-height: 1; }
+        .detail-ring-label-out { font-size: 12px; letter-spacing: 0.25em; color: var(--text-secondary); text-transform: uppercase; margin-top: 6px; text-align: center; }
+        .detail-ring-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-align: center; padding: 0 12px; max-width: 100%; word-wrap: break-word; }
+        .section-title { font-size: 11px; letter-spacing: 0.24em; color: var(--text-muted); text-transform: uppercase; margin: 18px 0 10px; padding-left: 4px; }
+        .input-row { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
+        .input-row-label { font-size: 13px; color: var(--text-primary); letter-spacing: 0.03em; min-width: 0; flex: 1; line-height: 1.3; word-wrap: break-word; }
+        .input-row-label small { display: block; font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+        .input-row-value { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .input-row input { background: transparent; border: none; color: var(--text-primary); text-align: right; width: 70px; outline: none; padding: 0; -moz-appearance: textfield; }
+        .input-row input::-webkit-outer-spin-button, .input-row input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .input-row input.wide { width: 90px; }
+        .input-row input.narrow { width: 50px; }
+        .input-row-unit { font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; min-width: 22px; }
+        .input-row.hrv input { color: var(--accent-yellow); }
+        .input-row.rmssd input { color: var(--accent-teal); }
+        .input-row.fcr input { color: var(--accent-green); }
+        .input-row.resp input { color: var(--accent-purple); }
+        .input-row.spo2 input { color: var(--accent-blue); }
+        .input-row.stress input { color: var(--accent-purple); }
+        .input-row.prot input { color: var(--accent-orange); }
+        .input-row.carb input { color: var(--accent-yellow); }
+        .input-row.agua input { color: var(--accent-blue); }
+        .input-row.kcal input { color: var(--text-primary); }
+        .input-row.temp input { color: var(--accent-orange); }
+        .baseline-info { background: var(--bg-card-deep); border: 1px solid var(--border-soft); border-radius: 12px; padding: 12px 16px; margin-top: -6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+        .baseline-info span:last-child { color: var(--text-secondary); }
+        .baseline-info .pos { color: var(--accent-teal); }
+        .baseline-info .neg { color: var(--accent-red); }
+        .baseline-info .warn { color: var(--accent-yellow); }
+        .toggle-group { display: grid; gap: 8px; margin-bottom: 12px; }
+        .toggle-group.cols-2 { grid-template-columns: 1fr 1fr; }
+        .toggle-group.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .toggle-group.cols-4 { grid-template-columns: repeat(2, 1fr); }
+        .toggle-btn { padding: 14px 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; color: var(--text-muted); font-family: inherit; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.15s ease; min-width: 0; line-height: 1.25; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; }
+        .toggle-btn:active { transform: scale(0.96); }
+        .toggle-btn.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); }
+        .toggle-btn.active.medio { background: rgba(249,115,22,0.15); color: var(--accent-orange); border-color: rgba(249,115,22,0.5); }
+        .toggle-btn.active.pesado { background: rgba(239,68,68,0.15); color: var(--accent-red); border-color: rgba(239,68,68,0.5); }
+        .toggle-btn.active.dia { background: rgba(249,115,22,0.15); color: var(--accent-orange); border-color: rgba(249,115,22,0.5); }
+        .toggle-btn.active.noite { background: rgba(96,165,250,0.15); color: var(--accent-blue); border-color: rgba(96,165,250,0.5); }
+        .toggle-btn.active.healthy { background: rgba(74,222,128,0.15); color: var(--accent-green); border-color: rgba(74,222,128,0.5); }
+        .toggle-btn.active.tired { background: rgba(234,179,8,0.15); color: var(--accent-yellow); border-color: rgba(234,179,8,0.5); }
+        .toggle-btn.active.sick { background: rgba(168,85,247,0.15); color: var(--accent-purple); border-color: rgba(168,85,247,0.5); }
+        .toggle-btn.active.injury { background: rgba(239,68,68,0.15); color: var(--accent-red); border-color: rgba(239,68,68,0.5); }
+        #btn-treino-forca.active { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.5); }
+        #btn-treino-aerobico.active { background: rgba(45,212,191,0.15); color: var(--accent-teal); border-color: rgba(45,212,191,0.5); }
+        #btn-treino-alongamento.active { background: rgba(74,222,128,0.15); color: var(--accent-green); border-color: rgba(74,222,128,0.5); }
+        #btn-treino-outro.active { background: rgba(168,85,247,0.15); color: var(--accent-purple); border-color: rgba(168,85,247,0.5); }
+        .toggle-btn.active.rec { background: rgba(96,165,250,0.15); color: var(--accent-blue); border-color: rgba(96,165,250,0.5); }
+        .sleep-bar { margin-top: 16px; margin-bottom: 16px; }
+        .sleep-bar-track { display: flex; height: 32px; border-radius: 8px; overflow: hidden; background: var(--bg-card-deep); border: 1px solid var(--border); }
+        .sleep-bar-segment { transition: flex 0.6s ease; min-width: 0; position: relative; }
+        .sleep-bar-segment.leve { background: var(--accent-blue); }
+        .sleep-bar-segment.profundo { background: var(--accent-purple); }
+        .sleep-bar-segment.rem { background: var(--accent-teal); }
+        .sleep-bar-legend { display: flex; justify-content: space-between; gap: 6px; margin-top: 10px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+        .sleep-bar-legend span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sleep-bar-legend .leve { color: var(--accent-blue); }
+        .sleep-bar-legend .profundo { color: var(--accent-purple); }
+        .sleep-bar-legend .rem { color: var(--accent-teal); }
+        .progress-block { margin-bottom: 14px; }
+        .progress-head { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 0.12em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+        .progress-track { height: 12px; background: var(--bg-card-deep); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease, background-color 0.3s ease; }
+        .progress-fill.prot { background: var(--accent-orange); }
+        .progress-fill.carb { background: var(--accent-yellow); }
+        .progress-fill.full { background: var(--accent-green) !important; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-width: 0; }
+        .stat-card-label { font-size: 12px; color: var(--text-secondary); letter-spacing: 0.08em; min-width: 0; flex: 1; line-height: 1.3; }
+        .stat-card-value { font-size: 16px; color: var(--text-primary); flex-shrink: 0; white-space: nowrap; }
+        .stat-card-value.teal { color: var(--accent-teal); }
+        .stat-card-value.orange { color: var(--accent-orange); }
+        .stat-card-value.yellow { color: var(--accent-yellow); }
+        .stat-card-value.blue { color: var(--accent-blue); }
+        .stat-card-value.purple { color: var(--accent-purple); }
+        .sync-row { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .sync-row.connected { border-color: rgba(45,212,191,0.4); }
+        .sync-row.stale { border-color: rgba(234,179,8,0.3); }
+        .sync-app-name { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-primary); }
+        .sync-app-name small { display: block; font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; margin-top: 4px; }
+        .sync-app-time { font-size: 12px; color: var(--text-muted); letter-spacing: 0.05em; white-space: nowrap; }
+        .sync-row.connected .sync-app-time { color: var(--accent-teal); }
+        .sync-row.stale .sync-app-time { color: var(--accent-yellow); }
+        .battery-container { display: flex; flex-direction: column; align-items: center; padding: 6px 0 16px; }
+        .battery-circle { position: relative; width: clamp(130px, 38vw, 160px); aspect-ratio: 1 / 1; margin-bottom: 12px; }
+        .battery-status { font-size: 13px; letter-spacing: 0.22em; color: var(--text-muted); text-transform: uppercase; text-align: center; margin-top: 4px; }
+        .battery-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
+        .battery-section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; letter-spacing: 0.22em; color: var(--text-muted); text-transform: uppercase; }
+        .battery-section-total { font-size: 16px; letter-spacing: 0.08em; }
+        .battery-section-total.descarga { color: var(--accent-red); }
+        .battery-section-total.recarga { color: var(--accent-teal); }
+        .battery-line { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--border-soft); }
+        .battery-line:first-of-type { border-top: none; }
+        .battery-line span:last-child { color: var(--text-primary); font-size: 14px; }
+        #toast { position: fixed; bottom: max(env(safe-area-inset-bottom, 0px), 32px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 14px 24px; border-radius: 14px; font-size: 13px; letter-spacing: 0.05em; z-index: 9999; opacity: 0; transition: opacity 0.28s, transform 0.28s; pointer-events: none; max-width: calc(100vw - 32px); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #toast.success { border-color: rgba(45,212,191,0.4); color: var(--accent-teal); }
+        #toast.error { border-color: rgba(239,68,68,0.4); color: var(--accent-red); }
+        #toast.warn { border-color: rgba(234,179,8,0.4); color: var(--accent-yellow); }
+        #modal-confirm { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+        #modal-confirm.show { display: flex; }
+        .modal-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 24px; max-width: 360px; width: 100%; }
+        .modal-title { font-size: 15px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 10px; }
+        .modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.05em; }
+        .modal-data { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6; }
+        .modal-data strong { font-size: 15px; }
+        .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .screen.active > .screen-inner > * { animation: fadeUp 0.4s ease-out backwards; }
+        .screen.active > .screen-inner > *:nth-child(1) { animation-delay: 0.02s; }
+        .screen.active > .screen-inner > *:nth-child(2) { animation-delay: 0.06s; }
+        .screen.active > .screen-inner > *:nth-child(3) { animation-delay: 0.1s; }
+        .screen.active > .screen-inner > *:nth-child(4) { animation-delay: 0.14s; }
+        .screen.active > .screen-inner > *:nth-child(5) { animation-delay: 0.18s; }
+    </style>
+</head>
+<body>
+<div id="toast"></div>
+<input type="hidden" id="in-hrv" value="50">
+<div id="bridge-flash" class="bridge-flash">⟳ Sync</div>
+<div id="modal-confirm">
+    <div class="modal-box">
+        <div class="modal-title">💾 Encerrar Ciclo?</div>
+        <div class="modal-sub">Isso salva os dados de hoje no histórico.</div>
+        <div class="modal-data" id="confirm-resume"></div>
+        <div class="modal-actions">
+            <button class="btn" onclick="cancelarEncerrar()" type="button">✕ Cancelar</button>
+            <button class="btn primary" onclick="confirmarEncerrarCiclo()" type="button">✅ Confirmar</button>
+        </div>
+    </div>
+</div>
+<div id="app">
+
+<!-- HOME -->
+<section class="screen active" id="screen-home" data-screen="home">
+  <div class="screen-inner">
+    <header class="topbar">
+      <div style="min-width:0;flex:1;"><div class="brand-mark">MAX<span>.</span>CORE</div><div class="brand-tagline">BioMetrics System</div></div>
+      <div class="day-counter"><span>Hoje</span><strong id="home-day">--</strong></div>
+    </header>
+    <div class="calib-badge" id="calib-badge">
+      <span class="calib-badge-label">Calibrando <span id="calib-dias">0/7</span></span>
+      <div class="calib-bar"><div class="calib-bar-inner" id="calib-bar-inner" style="width:0%"></div></div>
+    </div>
+    <button class="briefing-card" id="briefing-card" onclick="abrirTela('briefing')" type="button">
+      <div class="briefing-icon" id="briefing-icon">⚪</div>
+      <div class="briefing-mid">
+        <div class="briefing-mid-label">▌ Daily Briefing</div>
+        <div class="briefing-mid-titulo" id="briefing-titulo">Aguardando dados...</div>
+      </div>
+      <div class="briefing-arrow">›</div>
+    </button>
+    <div class="rings-grid">
+      <button class="ring-card" onclick="abrirTela('strain')" type="button">
+        <div class="ring-svg-wrap">
+          <svg class="ring-svg" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="ring-bg-track"></circle><circle cx="18" cy="18" r="15" class="ring-progress" id="ring-home-strain" style="stroke:var(--accent-yellow);"></circle></svg>
+          <div class="ring-center"><div class="ring-value" id="val-home-strain">0.0</div></div>
+        </div>
+        <span class="ring-label">Strain</span><span class="ring-sub" id="sub-home-strain">/ 21</span>
+      </button>
+      <button class="ring-card" onclick="abrirTela('recovery')" type="button">
+        <div class="ring-svg-wrap">
+          <svg class="ring-svg" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="ring-bg-track"></circle><circle cx="18" cy="18" r="15" class="ring-progress" id="ring-home-recovery" style="stroke:var(--accent-teal);"></circle></svg>
+          <div class="ring-center"><div class="ring-value" id="val-home-recovery">0%</div></div>
+        </div>
+        <span class="ring-label">Recovery</span><span class="ring-sub" id="sub-home-recovery">--</span>
+      </button>
+      <button class="ring-card" onclick="abrirTela('sono')" type="button">
+        <div class="ring-svg-wrap">
+          <svg class="ring-svg" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="ring-bg-track"></circle><circle cx="18" cy="18" r="15" class="ring-progress" id="ring-home-sono" style="stroke:var(--accent-purple);"></circle></svg>
+          <div class="ring-center"><div class="ring-value" id="val-home-sono">0%</div></div>
+        </div>
+        <span class="ring-label">Sleep</span><span class="ring-sub" id="unit-home-sono">0h 00m</span>
+      </button>
+    </div>
+    <div class="quick-grid">
+      <button class="quick-card battery" onclick="abrirTela('energia')" type="button">
+        <div class="quick-card-head"><span class="quick-card-title">🔋 Energia</span><span class="quick-card-arrow">›</span></div>
+        <div class="quick-card-value" id="val-home-energia">--%</div><span class="quick-card-sub" id="sub-home-energia">Bateria</span>
+      </button>
+      <button class="quick-card nutricao" onclick="abrirTela('nutricao')" type="button">
+        <div class="quick-card-head"><span class="quick-card-title">🔥 Nutrição</span><span class="quick-card-arrow">›</span></div>
+        <div class="quick-card-value" id="val-home-delta">0</div><span class="quick-card-sub">Δ kcal</span>
+      </button>
+    </div>
+    <div class="quick-grid">
+      <button class="quick-card estado" onclick="abrirTela('estado')" type="button" style="grid-column:span 2;">
+        <div class="quick-card-head"><span class="quick-card-title">⚙️ Estado / Condição</span><span class="quick-card-arrow">›</span></div>
+        <div class="quick-card-value" id="val-home-estado" style="font-size:clamp(16px,4.4vw,20px);">Saudável</div>
+        <span class="quick-card-sub" id="sub-home-estado">Peso · BF · Lesões</span>
+      </button>
+    </div>
+    <div class="actions-row">
+      <button class="btn purple" onclick="abrirTela('central')" type="button">📊 Central</button>
+      <button class="btn primary" onclick="pedirEncerrarCiclo()" type="button">💾 Salvar Ciclo</button>
+    </div>
+  </div>
+</section>
+
+<!-- BRIEFING -->
+<section class="screen" id="screen-briefing">
+  <div class="screen-inner">
+    <header class="topbar"><button class="topbar-btn" onclick="voltarHome()" type="button">‹</button><div class="topbar-title">Briefing do Dia</div><div style="width:40px;"></div></header>
+    <div class="mural" id="mural-box" style="margin-top:8px;">
+      <div class="mural-label" id="mural-label">▌ Briefing do Dia</div>
+      <p class="mural-text" id="mural-text">Aguardando dados do ciclo...</p>
+    </div>
+  </div>
+</section>
+
+<!-- RECOVERY -->
+<section class="screen" id="screen-recovery">
+  <div class="screen-inner">
+    <header class="topbar"><button class="topbar-btn" onclick="voltarHome()" type="button">‹</button><div class="topbar-title">Recovery</div><div style="width:40px;"></div></header>
+    <div class="detail-hero">
+      <div class="detail-ring-wrap">
+        <svg class="detail-ring-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" class="detail-ring-bg"></circle><circle cx="50" cy="50" r="45" class="detail-ring-progress" id="ring-detail-recovery" style="stroke:var(--accent-teal);"></circle></svg>
+        <div class="detail-ring-center"><div class="detail-ring-value" id="val-detail-recovery">0%</div></div>
+      </div>
+      <div class="detail-ring-label-out">Recovery</div>
+      <div class="detail-ring-sub" id="sub-detail-recovery">Aguardando dados</div>
+    </div>
+    <div class="section-title">⚡ Sensores Fisiológicos</div>
+    <div class="input-row rmssd">
+      <div class="input-row-label">RMSSD<small>App Recovery</small></div>
+      <div class="input-row-value"><input type="number" inputmode="numeric" id="in-rmssd" value="0" oninput="motorGeral()"><span class="input-row-unit">ms</span></div>
+    </div>
+    <div class="baseline-info"><span>LnRMSSD:</span><span id="lnrmssd-val">--</span><span id="rmssd-status">--</span></div>
+    <div class="input-row fcr">
+      <div class="input-row-label">FCR Repouso<small>Frequência cardíaca</small></div>
+      <div class="input-row-value"><input type="number" inputmode="numeric" id="in-rhr" value="60" oninput="motorGeral()"><span class="input-row-unit">bpm</span></div>
+    </div>
+    <div class="baseline-info"><span>Linha Base:</span><span id="base-rhr">--</span><span id="rhr-desvio">--</span></div>
+    <div class="input-row resp">
+      <div class="input-row-label">Respiração<small>Freq. respiratória noturna</small></div>
+      <div class="input-row-value"><input type="number" inputmode="decimal" step="0.1" id="in-rpm" value="14.0" oninput="motorGeral()"><span class="input-row-unit">rpm</span></div>
+    </div>
+    <div class="baseline-info"><span>Linha Base:</span><span id="base-rpm">--</span><span></span></div>
+    <div class="input-row spo2">
+      <div class="input-row-label">SpO2<small>Oxigenação noturna</small></div>
+      <div class="input-row-value"><input type="number" inputmode="numeric" id="in-spo2" value="97" oninput="motorGeral()"><span class="input-row-unit">%</span></div>
+    </div>
+    <div class="baseline-info"><span>Status:</span><span></span><span id="spo2-status">Ótimo</span></div>
+    <div class="input-row stress">
+      <div class="input-row-label">Estresse<small>Média do dia 0-99</small></div>
+      <div class="input-row-value"><input type="number" inputmode="numeric" id="in-estresse" value="30" oninput="motorGeral()"></div>
+    </div>
+    <div class="baseline-info"><span>Status:</span><span id="estresse-status">--</span><span id="estresse-impacto">--</span></div>
+  </div>
+</section>
+
+<!-- STRAIN -->
+<section class="screen" id="screen-strain">
+  <div class="screen-inner">
+    <header class="topbar"><button class="topbar-btn" onclick="voltarHome()" type="button">‹</button><div class="topbar-title">Strain</div><div style="width:40px;"></div></header>
+    <div class="detail-hero">
+      <div class="detail-ring-wrap">
+        <svg class="detail-ring-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" class="detail-ring-bg"></circle><circle cx="50" cy="50" r="45" class="detail-ring-progress" id="ring-detail-strain" style="stroke:var(--accent-yellow);"></circle></svg>
+        <div class="detail-ring-center"><div class="detail-ring-value" id="val-detail-strain">0.0</div></div>
+      </div>
+      <div class="detail-ring-label-out">Day Strain</div>
+    </div>
+    <div class="section-title">⚙️ Intensidade Turno Braçal</div>
+    <div class="toggle-group cols-3">
+      <button class="toggle-btn" id="btn-turno-folga" onclick="setTurno('folga')" type="button">Folga</button>
+      <button class="toggle-btn" id="btn-turno-moderado" onclick="setTurno('moderado')" type="button">Médio</button>
+      <button class="toggle-btn" id="btn-turno-pesado" onclick="setTurno('pesado')" type="button">Pesado</button>
+    </div>
+    <div class="section-title">⚒️ Esforço do Turno</div>
+    <div class="input-row"><div class="input-row-label">Paletes Montados<small>40 sacos × 25kg</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-paletes" value="0" oninput="motorGeral()"></div></div>
+    <div class="input-row"><div class="input-row-label">Sacos no Reator<small>Acima da cabeça</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-reator" value="0" oninput="motorGeral()"></div></div>
+    <div class="input-row"><div class="input-row-label">Tempo Marreta<small>Trabalho de impacto</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-marreta" value="0" oninput="motorGeral()"><span class="input-row-unit">min</span></div></div>
+    <div class="input-row"><div class="input-row-label">FC Média Turno<small>Batimentos no trabalho</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-fc-turno" value="120" oninput="motorGeral()"><span class="input-row-unit">bpm</span></div></div>
+    <div class="stat-card"><span class="stat-card-label">Tonelagem Movimentada</span><span class="stat-card-value orange"><span id="out-tonelagem">0.0</span> ton</span></div>
+    <div class="section-title">🏋️ Treino Opcional</div>
+    <div class="toggle-group cols-2">
+      <button class="toggle-btn" id="btn-treino-forca" onclick="toggleTreinoCentral('forca')" type="button">Força</button>
+      <button class="toggle-btn" id="btn-treino-aerobico" onclick="toggleTreinoCentral('aerobico')" type="button">Aeróbico</button>
+      <button class="toggle-btn" id="btn-treino-alongamento" onclick="toggleTreinoCentral('alongamento')" type="button">Alongamento</button>
+      <button class="toggle-btn" id="btn-treino-outro" onclick="toggleTreinoCentral('outro')" type="button">Outro</button>
+    </div>
+    <div class="input-row"><div class="input-row-label">Tempo<small>Duração do treino</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-treino-tempo" value="0" oninput="motorGeral()"><span class="input-row-unit">min</span></div></div>
+    <div class="input-row"><div class="input-row-label">FC Média Treino<small>Batimentos no treino</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-treino-fc" value="0" oninput="motorGeral()"><span class="input-row-unit">bpm</span></div></div>
+    <div class="stat-card"><span class="stat-card-label">Kcal do Treino</span><span class="stat-card-value yellow"><span id="out-kcal-treino">0</span> kcal</span></div>
+    <div class="section-title">👟 Movimento</div>
+    <div class="input-row"><div class="input-row-label">Passos<small>Total do dia</small></div><div class="input-row-value"><input type="number" inputmode="numeric" class="wide" id="in-passos" value="0" oninput="motorGeral()"></div></div>
+    <div class="stat-card"><span class="stat-card-label">Distância</span><span class="stat-card-value blue"><span id="out-km">0.0</span> km</span></div>
+  </div>
+</section>
+
+<!-- SONO -->
+<section class="screen" id="screen-sono">
+  <div class="screen-inner">
+    <header class="topbar"><button class="topbar-btn" onclick="voltarHome()" type="button">‹</button><div class="topbar-title">Sono</div><div style="width:40px;"></div></header>
+    <div class="detail-hero">
+      <div class="detail-ring-wrap">
+        <svg class="detail-ring-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" class="detail-ring-bg"></circle><circle cx="50" cy="50" r="45" class="detail-ring-progress" id="ring-detail-sono" style="stroke:var(--accent-purple);"></circle></svg>
+        <div class="detail-ring-center"><div class="detail-ring-value" id="val-detail-sono">0%</div></div>
+      </div>
+      <div class="detail-ring-label-out" id="lbl-detail-sono">0h 00m</div>
+    </div>
+    <div class="section-title">🌙 Tipo de Sono</div>
+    <div class="toggle-group cols-2">
+      <button class="toggle-btn" id="btn-sono-dia" onclick="setTipoSono('dia')" type="button">☀️ Dia</button>
+      <button class="toggle-btn" id="btn-sono-noite" onclick="setTipoSono('noite')" type="button">🌙 Noite</button>
+    </div>
+    <div class="section-title">💤 Arquitetura</div>
+    <div class="sleep-bar">
+      <div class="sleep-bar-track">
+        <div class="sleep-bar-segment leve" id="bar-seg-leve" style="flex:0;"></div>
+        <div class="sleep-bar-segment profundo" id="bar-seg-profundo" style="flex:0;"></div>
+        <div class="sleep-bar-segment rem" id="bar-seg-rem" style="flex:0;"></div>
+      </div>
+      <div class="sleep-bar-legend">
+        <span class="leve">Leve <span id="leg-leve">0%</span></span>
+        <span class="profundo">Profundo <span id="leg-profundo">0%</span></span>
+        <span class="rem">REM <span id="leg-rem">0%</span></span>
+      </div>
+    </div>
+    <div class="section-title">⏱️ Fases (horas e minutos)</div>
+    <div class="input-row">
+      <div class="input-row-label" style="color:var(--accent-blue);">🔵 Sono Leve<small>Alvo: 50-60%</small></div>
+      <div class="input-row-value">
+        <input type="number" inputmode="numeric" class="narrow" id="in-leve-horas" value="4" oninput="motorGeral()"><span class="input-row-unit" style="color:var(--accent-blue);">h</span>
+        <input type="number" inputmode="numeric" class="narrow" id="in-leve-minutos" value="15" oninput="motorGeral()"><span class="input-row-unit" style="color:var(--accent-blue);">m</span>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-row-label" style="color:var(--accent-purple);">🟣 Profundo<small>Alvo: 15-20%</small></div>
+      <div class="input-row-value">
+        <input type="number" inputmode="numeric" class="narrow" id="in-prof-horas" value="1" oninput="motorGeral()"><span class="input-row-unit" style="color:var(--accent-purple);">h</span>
+        <input type="number" inputmode="numeric" class="narrow" id="in-prof-minutos" value="15" oninput="motorGeral()"><span class="input-row-unit" style="color:var(--accent-purple);">m</span>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-row-label" style="color:var(--accent-teal);">🟢 REM<small>Alvo: 20-25%</small></div>
+      <div class="input-row-value">
+        <input type="number" inputmode="numeric" class="narrow" id="in-rem-horas" value="1" oninput="motorGeral()"><span class="input-row-unit" style="color:var(--accent-teal);">h</span>
+        <input type="number" inputmode="numeric" class="narrow" id="in-rem-minutos" value="30" oninput="motorGeral()"><span class="input-row-unit" style="color:var(--accent-teal);">m</span>
+      </div>
+    </div>
+    <div class="section-title">🌅 Despertares</div>
+    <div class="input-row"><div class="input-row-label">Vezes acordou<small>Quantas vezes durante o sono</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-despertares" value="0" oninput="motorGeral()"></div></div>
+    <div class="input-row"><div class="input-row-label">Tempo acordado<small>Total na madrugada</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-tempo-acordado" value="0" oninput="motorGeral()"><span class="input-row-unit">min</span></div></div>
+    <div class="stat-card"><span class="stat-card-label">Eficiência do sono</span><span class="stat-card-value teal"><span id="out-eficiencia">--</span>%</span></div>
+    <!-- TEMPERATURA CORPORAL -->
+    <div class="section-title">🌡️ Temperatura Corporal</div>
+    <div class="input-row temp">
+      <div class="input-row-label">Temperatura<small>Medida ao acordar</small></div>
+      <div class="input-row-value">
+        <input type="number" inputmode="decimal" step="0.1" id="in-temp" value="36.5" oninput="motorGeral()">
+        <span class="input-row-unit">°C</span>
+      </div>
+    </div>
+    <div class="baseline-info"><span>Status:</span><span></span><span id="temp-status">Normal</span></div>
+    <!-- COCHILO -->
+    <div class="section-title">😴 Cochilo</div>
+    <div class="input-row"><div class="input-row-label">Duração<small>Cochilo extra (opcional)</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-cochilo" value="0" oninput="motorGeral()"><span class="input-row-unit">min</span></div></div>
+  </div>
+</section>
+
+<!-- NUTRIÇÃO -->
+<section class="screen" id="screen-nutricao">
+  <div class="screen-inner">
+    <header class="topbar"><button class="topbar-btn" onclick="voltarHome()" type="button">‹</button><div class="topbar-title">Nutrição</div><div style="width:40px;"></div></header>
+    <div class="section-title">🔥 Combustível Ingerido</div>
+    <div class="input-row kcal"><div class="input-row-label">Calorias<small>Total ingerido hoje</small></div><div class="input-row-value"><input type="number" inputmode="numeric" class="wide" id="in-cal" value="0" oninput="motorGeral()"><span class="input-row-unit">kcal</span></div></div>
+    <div class="input-row prot"><div class="input-row-label">Proteína<small>Alvo: <span id="target-prot-mini">0</span>g</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-prot" value="0" oninput="motorGeral()"><span class="input-row-unit">g</span></div></div>
+    <div class="input-row carb"><div class="input-row-label">Carboidrato<small>Alvo: <span id="target-carb-mini">0</span>g</small></div><div class="input-row-value"><input type="number" inputmode="numeric" id="in-carb" value="0" oninput="motorGeral()"><span class="input-row-unit">g</span></div></div>
+    <div class="input-row agua"><div class="input-row-label">Água<small>Alvo: <span id="target-agua-mini">0</span>ml</small></div><div class="input-row-value"><input type="number" inputmode="numeric" class="wide" id="in-agua" value="0" oninput="motorGeral()"><span class="input-row-unit">ml</span></div></div>
+    <div class="section-title">📊 Progresso</div>
+    <div class="progress-block"><div class="progress-head"><span>Proteína (anabolismo)</span><span id="pct-prot">0%</span></div><div class="progress-track"><div class="progress-fill prot" id="bar-prot" style="width:0%;"></div></div></div>
+    <div class="progress-block"><div class="progress-head"><span>Carboidrato (glicogênio)</span><span id="pct-carb">0%</span></div><div class="progress-track"><div class="progress-fill carb" id="bar-carb" style="width:0%;"></div></div></div>
+    <div class="section-title">⚡ Balanço Energético</div>
+    <div class="stat-card"><span class="stat-card-label">Gasto Basal (TMB)</span><span class="stat-card-value"><span id="out-tmb">0</span> kcal</span></div>
+    <div class="stat-card"><span class="stat-card-label">Gasto Ativo</span><span class="stat-card-value"><span id="out-ativas">0</span> kcal</span></div>
+    <div class="stat-card" style="border-color:var(--border);background:var(--bg-card);"><span class="stat-card-label" style="font-size:14px;color:var(--text-primary);">GASTO TOTAL</span><span class="stat-card-value" style="font-size:22px;"><span id="out-gasto-total">0</span> kcal</span></div>
+    <div class="stat-card"><span class="stat-card-label">Delta (Ingerido − Gasto)</span><span class="stat-card-value" id="out-delta-card">0 kcal</span></div>
+  </div>
+</section>
+
+<!-- ESTADO -->
+<section class="screen" id="screen-estado">
+  <div class="screen-inner">
+    <header class="topbar"><button class="topbar-btn" onclick="voltarHome()" type="button">‹</button><div class="topbar-title">Estado / Condição</div><div style="width:40px;"></div></header>
+    <div class="section-title">⚖️ Composição Corporal</div>
+    <div class="input-row"><div class="input-row-label">Peso atual<small>Quilogramas</small></div><div class="input-row-value"><input type="number" inputmode="decimal" step="0.01" id="in-peso" value="89.15" oninput="motorGeral()"><span class="input-row-unit">kg</span></div></div>
+    <div class="input-row"><div class="input-row-label">% Gordura<small>Body Fat</small></div><div class="input-row-value"><input type="number" inputmode="decimal" step="0.1" id="in-bf" value="22.0" oninput="motorGeral()"><span class="input-row-unit">%</span></div></div>
+    <div class="stat-card"><span class="stat-card-label">Massa Magra</span><span class="stat-card-value teal"><span id="out-mm">0.0</span> kg</span></div>
+    <div class="section-title">🚨 Condição Clínica</div>
+    <div class="toggle-group cols-4">
+      <button class="toggle-btn" id="btn-saude-normal" onclick="setSaude('normal')" type="button">Saudável</button>
+      <button class="toggle-btn" id="btn-saude-cansado" onclick="setSaude('cansado')" type="button">Fadigado</button>
+      <button class="toggle-btn" id="btn-saude-doente" onclick="setSaude('doente')" type="button">Doente</button>
+      <button class="toggle-btn" id="btn-saude-lesionado" onclick="setSaude('lesionado')" type="button">Lesão</button>
+    </div>
+    <div id="grau-panel" style="display:none;">
+      <div class="section-title" id="grau-label">Grau</div>
+      <div class="toggle-group cols-3">
+        <button class="toggle-btn" id="btn-grau-leve" onclick="setGrauSaude('leve')" type="button">Leve</button>
+        <button class="toggle-btn" id="btn-grau-moderado" onclick="setGrauSaude('moderado')" type="button">Moderado</button>
+        <button class="toggle-btn" id="btn-grau-severo" onclick="setGrauSaude('severo')" type="button">Severo</button>
+      </div>
+    </div>
+    <div class="section-title">🛠️ Intervenção / Recovery Ativo</div>
+    <div class="toggle-group cols-2">
+      <button class="toggle-btn" id="btn-rec-botas" onclick="toggleRec('botas')" type="button">🦵 Botas Compressão</button>
+      <button class="toggle-btn" id="btn-rec-gelado" onclick="toggleRec('gelado')" type="button">🧊 Banho Gelado</button>
+      <button class="toggle-btn" id="btn-rec-sol" onclick="toggleRec('sol')" type="button">☀️ Banho de Sol</button>
+      <button class="toggle-btn" id="btn-rec-meditacao" onclick="toggleRec('meditacao')" type="button">🧘 Meditação</button>
+    </div>
+  </div>
+</section>
+
+<!-- ENERGIA -->
+<section class="screen" id="screen-energia">
+  <div class="screen-inner">
+    <header class="topbar"><button class="topbar-btn" onclick="voltarHome()" type="button">‹</button><div class="topbar-title">Energia do Corpo</div><div style="width:40px;"></div></header>
+    <div class="battery-container">
+      <div class="battery-circle">
+        <svg class="detail-ring-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" class="detail-ring-bg"></circle><circle cx="50" cy="50" r="45" class="detail-ring-progress" id="ring-detail-bateria" style="stroke:var(--accent-teal);"></circle></svg>
+        <div class="detail-ring-center"><div class="detail-ring-value" id="val-bateria">--</div></div>
+      </div>
+      <div class="detail-ring-label-out">🔋 Bateria</div>
+      <div class="battery-status" id="bateria-status">--</div>
+    </div>
+    <div class="battery-section">
+      <div class="battery-section-head"><span>▼ Descargas Hoje</span><span class="battery-section-total descarga" id="bateria-descarga-total">−0</span></div>
+      <div id="bateria-descargas">
+        <div class="battery-line"><span>Turno</span><span id="bat-d-turno">0</span></div>
+        <div class="battery-line"><span>Treino</span><span id="bat-d-treino">0</span></div>
+        <div class="battery-line"><span>Estresse alto</span><span id="bat-d-estresse">0</span></div>
+        <div class="battery-line"><span>Passos</span><span id="bat-d-passos">0</span></div>
+      </div>
+    </div>
+    <div class="battery-section">
+      <div class="battery-section-head"><span>▲ Recargas Hoje</span><span class="battery-section-total recarga" id="bateria-recarga-total">+0</span></div>
+      <div id="bateria-recargas">
+        <div class="battery-line"><span>Intervenções</span><span id="bat-r-recovery">0</span></div>
+        <div class="battery-line"><span>Nutrição completa</span><span id="bat-r-nutricao">0</span></div>
+      </div>
+    </div>
+    <div class="battery-section">
+      <div class="battery-section-head"><span>📊 Resumo</span></div>
+      <div class="battery-line"><span>Começou em</span><span id="bat-inicio">--%</span></div>
+      <div class="battery-line"><span>Agora</span><span id="bat-agora">--%</span></div>
+      <div class="battery-line"><span>Próxima recarga</span><span id="bat-proxima">Sono</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CENTRAL -->
+<section class="screen" id="screen-central">
+  <div class="screen-inner">
+    <header class="topbar"><button class="topbar-btn" onclick="voltarHome()" type="button">‹</button><div class="topbar-title">Central de Inteligência</div><div style="width:40px;"></div></header>
+    <div class="section-title">🔗 Sincronização entre Apps</div>
+    <div class="sync-row" id="sync-pulse"><div class="sync-app-name">PULSE<small>FC turno · FC treino</small></div><div class="sync-app-time">desconectado</div></div>
+    <div class="sync-row" id="sync-sleep"><div class="sync-app-name">SLEEP<small>Fases · HRV · RHR · SpO2 · Temp</small></div><div class="sync-app-time">desconectado</div></div>
+    <div class="sync-row" id="sync-work"><div class="sync-app-name">WORK<small>Turno · Paletes · Reator</small></div><div class="sync-app-time">desconectado</div></div>
+    <div class="sync-row" id="sync-fuel"><div class="sync-app-name">FUEL<small>Kcal · Proteína · Água</small></div><div class="sync-app-time">desconectado</div></div>
+    <div class="toggle-group cols-2" style="margin-top:12px;">
+      <button class="toggle-btn" onclick="aplicarBridgeData(true)" type="button">🔄 Sincronizar Agora</button>
+      <button class="toggle-btn" onclick="if(confirm('Limpar dados do Bridge?')){BioBridge.clearAll();atualizarSyncBadge();}" type="button">🧹 Limpar Bridge</button>
+    </div>
+    <div class="section-title">📊 Resumo Histórico</div>
+    <div class="stat-card"><span class="stat-card-label">ACWR (7d/28d)</span><span class="stat-card-value purple" id="central-acwr">--</span></div>
+    <div class="stat-card"><span class="stat-card-label">Média Recovery 7D</span><span class="stat-card-value teal" id="central-rec">--</span></div>
+    <div class="stat-card"><span class="stat-card-label">Débito de Sono 7D</span><span class="stat-card-value blue" id="central-sono">--</span></div>
+    <div class="stat-card"><span class="stat-card-label">Total de Ciclos</span><span class="stat-card-value" id="central-total">0</span></div>
+    <div class="section-title">😴 Sono — Últimos 10 Ciclos</div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);"><div style="width:8px;height:8px;border-radius:2px;background:var(--accent-blue)"></div>Leve</div>
+          <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);"><div style="width:8px;height:8px;border-radius:2px;background:var(--accent-purple)"></div>Profundo</div>
+          <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);"><div style="width:8px;height:8px;border-radius:2px;background:#f472b6"></div>REM</div>
+        </div>
+        <div style="font-size:10px;color:var(--accent-red);letter-spacing:0.1em;">— 8H META</div>
+      </div>
+      <div id="grafico-sono" style="display:flex;align-items:flex-end;gap:4px;height:100px;position:relative;">
+        <div id="grafico-meta-linha" style="position:absolute;left:0;right:0;border-top:1px dashed var(--accent-red);opacity:0.5;pointer-events:none;"></div>
+      </div>
+      <div id="grafico-sono-labels" style="display:flex;gap:4px;margin-top:4px;"></div>
+      <div style="text-align:center;margin-top:8px;font-size:10px;color:var(--text-muted);" id="grafico-sono-media"></div>
+    </div>
+    <div class="section-title">📅 Calendário de Recuperação</div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <button onclick="mudarMesCalendario(-1)" type="button" style="background:none;border:1px solid var(--border);color:var(--text-secondary);width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;font-family:inherit;">‹</button>
+        <div id="cal-titulo" style="font-size:13px;letter-spacing:0.15em;color:var(--text-primary);text-transform:uppercase;"></div>
+        <button onclick="mudarMesCalendario(1)" type="button" style="background:none;border:1px solid var(--border);color:var(--text-secondary);width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;font-family:inherit;">›</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;">
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">DOM</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">SEG</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">TER</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">QUA</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">QUI</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">SEX</div>
+        <div style="text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;">SÁB</div>
+      </div>
+      <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;"></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:10px;color:var(--text-muted);letter-spacing:0.06em;">
+        <span>🟢 Bom ≥67%</span>
+        <span>🟡 Médio 34–66%</span>
+        <span>🔴 Crítico &lt;34%</span>
+        <span style="color:var(--text-dim);">T=Trabalho · F=Folga</span>
+      </div>
+    </div>
+
+    <div class="toggle-group cols-2">
+      <button class="toggle-btn" onclick="exportarDados()" type="button">⬇ Exportar</button>
+      <button class="toggle-btn" onclick="document.getElementById('importFile').click()" type="button">⬆ Importar</button>
+    </div>
+    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importarDados(event)">
+    <div class="section-title" style="margin-top:28px;">⚠️ Zona de Risco</div>
+    <button class="toggle-btn" style="width:100%;color:var(--accent-red);border-color:rgba(239,68,68,0.3);" onclick="resetarHistorico()" type="button">🗑️ Apagar Todo o Histórico</button>
+    <div style="margin-top:30px;text-align:center;color:var(--text-dim);font-size:11px;letter-spacing:0.2em;">
+      MAX.CORE · v2.4<br><span style="opacity:0.5;">Passos contextuais · Temperatura corporal · Círculos maiores</span>
+    </div>
+  </div>
+</section>
+
+</div><!-- /#app -->
+<script src="bio-bridge.js"></script>
+<script>
+const CIRC_HOME=94.24,CIRC_DETAIL=282.74,ALTURA_FIXA=182,IDADE=37,FCMAX_REAL=195,MIN_ESFORCO_REAL_TURNO=240,JANELA_AGUDA=7,JANELA_CRONICA=28,MAX_HISTORICO=90;
+let telaAtual='home',intensidadeTurno='folga',estadoSaude='normal',grauSaude='moderado',locaisLesao=[],tipoSono='noite',recBotas=false,recGelado=false,recSol=false,recMeditacao=false;
+let treinoTipos=JSON.parse(localStorage.getItem('bio_treino_tipos')||'[]');
+
+function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v));}
+function formatMin(m){if(isNaN(m)||m<=0)return"0h 00m";return Math.floor(m/60)+"h "+String(m%60).padStart(2,'0')+"m";}
+function getNum(id,def=0){const el=document.getElementById(id);if(!el)return def;const v=parseFloat(el.value);return isNaN(v)?def:v;}
+function getInt(id,def=0){const el=document.getElementById(id);if(!el)return def;const v=parseInt(el.value);return isNaN(v)?def:v;}
+function setText(id,txt){const el=document.getElementById(id);if(el)el.textContent=txt;}
+function setHTML(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+function getEl(id){return document.getElementById(id);}
+function setV(id,v){const el=getEl(id);if(el&&v!==undefined&&v!==null)el.value=v;}
+function corPorScore(s){return s<34?'var(--accent-red)':s<67?'var(--accent-yellow)':'var(--accent-teal)';}
+
+let toastTimer=null;
+function toast(msg,tipo=''){const el=getEl('toast');if(!el)return;el.textContent=msg;el.className='show '+tipo;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el.className='';},3000);}
+
+let flashTimer=null;
+function bridgeFlash(msg){const el=getEl('bridge-flash');if(!el)return;el.textContent='⟳ '+msg;el.classList.add('show');clearTimeout(flashTimer);flashTimer=setTimeout(()=>el.classList.remove('show'),2000);}
+
+function abrirTela(nome){
+  if(telaAtual===nome)return;
+  const atual=getEl('screen-'+telaAtual),prox=getEl('screen-'+nome);
+  if(!prox){toast('Tela não encontrada','error');return;}
+  if(telaAtual==='home')atual.classList.add('behind');else atual.classList.remove('active');
+  prox.classList.add('active');prox.classList.remove('behind');
+  requestAnimationFrame(()=>{prox.scrollTop=0;});
+  telaAtual=nome;
+  if(nome==='central'){atualizarSyncBadge();renderGraficoSono();renderCalendario();}
+  if(['recovery','strain','sono','energia','nutricao'].includes(nome)){if(typeof aplicarBridgeData==='function')aplicarBridgeData(false);}
 }
+function voltarHome(){
+  if(telaAtual==='home')return;
+  const atual=getEl('screen-'+telaAtual),home=getEl('screen-home');
+  atual.classList.remove('active');home.classList.remove('behind');home.classList.add('active');
+  telaAtual='home';
+}
+
+let touchStartX=0,touchStartY=0,touchTrackingSwipe=false;
+document.addEventListener('touchstart',(e)=>{if(telaAtual==='home'||e.touches.length!==1)return;touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;touchTrackingSwipe=touchStartX<30;},{passive:true});
+document.addEventListener('touchend',(e)=>{if(!touchTrackingSwipe||telaAtual==='home')return;const t=e.changedTouches[0];const dx=t.clientX-touchStartX;const dy=Math.abs(t.clientY-touchStartY);if(dx>60&&dy<50)voltarHome();touchTrackingSwipe=false;},{passive:true});
+
+function atualizarAnel(id,percent,circ=CIRC_HOME){const el=getEl(id);if(!el)return;const pct=clamp(percent,0,100);el.style.strokeDashoffset=(circ-(pct/100)*circ).toFixed(2);}
+function lerHistorico(){try{const h=JSON.parse(localStorage.getItem('bio_historico_ciclos'));return Array.isArray(h)?h:[];}catch(e){return[];}}
+
+function setTurno(modo){
+  intensidadeTurno=modo;localStorage.setItem('bio_turno',modo);
+  ['folga','moderado','pesado'].forEach(m=>{const b=getEl('btn-turno-'+m);if(b){b.classList.toggle('active',m===modo);if(m===modo){b.classList.remove('medio','pesado');if(modo==='moderado')b.classList.add('medio');if(modo==='pesado')b.classList.add('pesado');}}});
+  motorGeral();
+}
+function setSaude(modo){
+  estadoSaude=modo;localStorage.setItem('bio_saude',modo);
+  const map={normal:'healthy',cansado:'tired',doente:'sick',lesionado:'injury'};
+  ['normal','cansado','doente','lesionado'].forEach(m=>{const b=getEl('btn-saude-'+m);if(!b)return;b.classList.remove('active','healthy','tired','sick','injury');if(m===modo){b.classList.add('active');b.classList.add(map[m]);}});
+  const panel=getEl('grau-panel'),label=getEl('grau-label');
+  if(modo==='normal')panel.style.display='none';
+  else{panel.style.display='block';if(modo==='cansado')label.textContent='Grau de Fadiga';else if(modo==='doente')label.textContent='Grau da Doença';else if(modo==='lesionado')label.textContent='Grau da Lesão';}
+  motorGeral();
+}
+function setGrauSaude(grau){grauSaude=grau;localStorage.setItem('bio_grau',grau);['leve','moderado','severo'].forEach(g=>{const b=getEl('btn-grau-'+g);if(b)b.classList.toggle('active',g===grau);});motorGeral();}
+function setTipoSono(tipo){tipoSono=tipo;localStorage.setItem('bio_tipo_sono',tipo);['dia','noite'].forEach(t=>{const b=getEl('btn-sono-'+t);if(!b)return;b.classList.remove('active','dia','noite');if(t===tipo){b.classList.add('active');b.classList.add(t);}});motorGeral();}
+function toggleTreinoCentral(tipo){const idx=treinoTipos.indexOf(tipo);if(idx>=0)treinoTipos.splice(idx,1);else treinoTipos.push(tipo);localStorage.setItem('bio_treino_tipos',JSON.stringify(treinoTipos));['forca','aerobico','alongamento','outro'].forEach(t=>{const btn=getEl('btn-treino-'+t);if(btn)btn.classList.toggle('active',treinoTipos.indexOf(t)>=0);});motorGeral();}
+function getTreinoTipoPrincipal(){if(treinoTipos.includes('forca'))return'forca';if(treinoTipos.includes('aerobico'))return'aerobico';if(treinoTipos.includes('alongamento'))return'alongamento';if(treinoTipos.length>0)return'outro';return'nenhum';}
+Object.defineProperty(window,'treinoTipo',{get:function(){return getTreinoTipoPrincipal();}});
+function setTreinoTipo(tipo){if(tipo==='nenhum'){treinoTipos=[];}else if(!treinoTipos.includes(tipo)){treinoTipos.push(tipo);}localStorage.setItem('bio_treino_tipos',JSON.stringify(treinoTipos));['forca','aerobico','alongamento','outro'].forEach(t=>{const btn=getEl('btn-treino-'+t);if(btn)btn.classList.toggle('active',treinoTipos.indexOf(t)>=0);});motorGeral();}
+function toggleRec(t){
+  if(t==='botas')recBotas=!recBotas;
+  if(t==='gelado')recGelado=!recGelado;
+  if(t==='sol')recSol=!recSol;
+  if(t==='meditacao')recMeditacao=!recMeditacao;
+  localStorage.setItem('bio_rec_botas',String(recBotas));
+  localStorage.setItem('bio_rec_gelado',String(recGelado));
+  localStorage.setItem('bio_rec_sol',String(recSol));
+  localStorage.setItem('bio_rec_meditacao',String(recMeditacao));
+  ['botas','gelado','sol','meditacao'].forEach(r=>{
+    const val={botas:recBotas,gelado:recGelado,sol:recSol,meditacao:recMeditacao}[r];
+    const btn=getEl('btn-rec-'+r);
+    if(btn){btn.classList.toggle('active',val);btn.classList.toggle('rec',val);}
+  });
+  motorGeral();
+}
+
+function obterMediasHistoricas(){
+  const hist=lerHistorico();if(hist.length===0)return null;
+  const ema=(arr,alfa)=>arr.reduce((e,v,i)=>i===0?v:v*alfa+e*(1-alfa),arr[0]);
+  const arrHrv=hist.map(c=>c.hrv||50),arrRhr=hist.map(c=>c.rhr||60),arrRpm=hist.map(c=>c.rpm||14);
+  const arrStrain=hist.map(c=>c.strain||0),arrRec=hist.map(c=>c.recovery_score||0);
+  const arrRmssd=hist.map(c=>c.rmssd||0).filter(v=>v>0);
+  const diasAg=Math.min(JANELA_AGUDA,hist.length),diasCr=Math.min(JANELA_CRONICA,hist.length);
+  const cargaAguda=arrStrain.slice(-diasAg).reduce((a,b)=>a+b,0)/diasAg;
+  const cargaCronica=arrStrain.slice(-diasCr).reduce((a,b)=>a+b,0)/diasCr;
+  const acwr=cargaCronica>0?cargaAguda/cargaCronica:1.0;
+  const sonoIdeal=480;
+  const debitoMin=hist.slice(-7).reduce((acc,c)=>acc+Math.max(0,sonoIdeal-(c.sonoTotal||sonoIdeal)),0);
+  const rec7d=arrRec.slice(-7).reduce((a,b)=>a+b,0)/Math.min(7,hist.length);
+  return{hrv:Math.round(ema(arrHrv,0.3)),rhr:Math.round(ema(arrRhr,0.3)),rpm:parseFloat(ema(arrRpm,0.3).toFixed(1)),rmssd:arrRmssd.length>0?Math.round(ema(arrRmssd,0.3)):null,rmssdN:arrRmssd.length,acwr,totalDias:hist.length,debitoSono:Math.round(debitoMin/60),rec7d:Math.round(rec7d),ultimoTurno:hist[hist.length-1]?.turno||'folga',cargaCronica};
+}
+
+function calcularSono(leveMin,profMin,remMin,despertares,tempoAcordado,cocholoMin){
+  leveMin=Math.max(0,leveMin);profMin=Math.max(0,profMin);remMin=Math.max(0,remMin);
+  const total=leveMin+profMin+remMin;
+  // Cochilo conta 60% para duração (sono leve sem ciclos completos)
+  const cocholoEfetivo=Math.round((cocholoMin||0)*0.6);
+  const totalComCochilo=total+cocholoEfetivo;
+  const pctProf=total>0?(profMin/total)*100:0,pctRem=total>0?(remMin/total)*100:0,pctLeve=total>0?(leveMin/total)*100:0;
+  let scoreProf=0,scoreREM=0,scoreDur=0;
+  if(total>0){
+    scoreProf=pctProf>=20?100:pctProf>=15?80+((pctProf-15)/5)*20:pctProf>=10?40+((pctProf-10)/5)*40:(pctProf/10)*40;
+    scoreREM=pctRem>=25?100:pctRem>=20?80+((pctRem-20)/5)*20:pctRem>=12?40+((pctRem-12)/8)*40:(pctRem/12)*40;
+    scoreDur=totalComCochilo>=480?100:totalComCochilo>=420?80:totalComCochilo>=360?55:totalComCochilo>=300?30:(totalComCochilo/300)*30;
+  }
+  let score=scoreProf*0.55+scoreREM*0.30+scoreDur*0.15;
+  if(tipoSono==='dia')score*=0.85;
+  if(pctLeve>65&&total>0)score*=0.85;
+  if(despertares>=4)score-=15;else if(despertares>=2)score-=8;
+  if(tempoAcordado>30)score-=10;
+  score=clamp(Math.round(score),0,100);
+  const eficiencia=total>0?Math.round(((total)/(total+tempoAcordado))*100):0;
+  return{profMin,remMin,leveMin,total,pctProf,pctRem,pctLeve,score,eficiencia};
+}
+
+function analisarRMSSD(rmssd,baseline,n){
+  const lnEl=getEl('lnrmssd-val'),baseEl=getEl('base-rmssd'),stEl=getEl('rmssd-status');
+  if(!rmssd||rmssd<10){if(lnEl)lnEl.textContent='--';if(baseEl)baseEl.textContent='--';if(stEl){stEl.textContent='--';stEl.className='';}return{ln:null,desvio:null};}
+  const ln=Math.log(rmssd);if(lnEl)lnEl.textContent=ln.toFixed(2);
+  if(!baseline||n<3){if(baseEl)baseEl.textContent='calibrando';if(stEl){stEl.textContent=(n||0)+'d dado';stEl.className='';}return{ln,desvio:null};}
+  const desvio=((rmssd-baseline)/baseline)*100;
+  if(baseEl)baseEl.textContent=baseline+' ms';
+  if(stEl){let txt,cls;if(desvio>=10){txt='🟢 ACIMA';cls='pos';}else if(desvio>=-5){txt='⚪ NORMAL';cls='';}else if(desvio>=-15){txt='🟡 ALERTA';cls='warn';}else{txt='🔴 SOBRECARGA';cls='neg';}stEl.textContent=txt+' ('+(desvio>=0?'+':'')+desvio.toFixed(0)+'%)';stEl.className=cls;}
+  return{ln,desvio};
+}
+
+function calcularRecovery(hrv,rmssd,rhr,rpm,spo2,pontuacaoSono,candles,estresse,temp){
+  let scoreVFC=50,scoreFCR=50,alertaInfeccao=false,instabilidade=0,scoreRMSSD=null;
+  if(candles&&candles.totalDias>=3){
+    const dHRV=((hrv-candles.hrv)/candles.hrv)*100;
+    scoreVFC=dHRV>=10?100:dHRV>=5?90:dHRV>=0?75:dHRV>=-5?60:dHRV>=-10?40:dHRV>=-20?20:5;
+    const dRHR=((rhr-candles.rhr)/candles.rhr)*100;
+    scoreFCR=dRHR<=-5?100:dRHR<=0?80:dRHR<=5?60:dRHR<=10?35:15;
+    if(hrv<=candles.hrv*0.88&&rhr>=candles.rhr*1.07&&rpm>=candles.rpm+0.5)alertaInfeccao=true;
+    const hist=lerHistorico();
+    if(hist.length>=5){const ult7=hist.slice(-7).map(c=>c.hrv).filter(v=>v>0);if(ult7.length>=5){const media=ult7.reduce((a,b)=>a+b,0)/ult7.length;const dp=Math.sqrt(ult7.reduce((a,b)=>a+(b-media)**2,0)/ult7.length);const cv=(dp/media)*100;if(cv>15)instabilidade=-8;else if(cv>12)instabilidade=-4;}}
+    const dH=((hrv-candles.hrv)/candles.hrv*100).toFixed(1);setText('base-hrv',candles.hrv+' ms');
+    const dEl=getEl('hrv-desvio');if(dEl){dEl.textContent=(parseFloat(dH)>=0?'+':'')+dH+'%';dEl.className=parseFloat(dH)>=0?'pos':(parseFloat(dH)>=-10?'warn':'neg');}
+    const dR=((rhr-candles.rhr)/candles.rhr*100).toFixed(1);setText('base-rhr',candles.rhr+' bpm');
+    const dREl=getEl('rhr-desvio');if(dREl){dREl.textContent=(parseFloat(dR)>=0?'+':'')+dR+'%';dREl.className=parseFloat(dR)<=0?'pos':(parseFloat(dR)<=5?'warn':'neg');}
+    setText('base-rpm',candles.rpm+' rpm');
+  }else{
+    scoreVFC=hrv>70?80:hrv>=50?60:hrv>=35?40:20;
+    scoreFCR=rhr<50?85:rhr<60?65:rhr<70?45:25;
+    setText('base-hrv','calibrando');setText('base-rhr','calibrando');setText('base-rpm','calibrando');
+  }
+  const baselineRMSSD=candles?candles.rmssd:null,nRMSSD=candles?candles.rmssdN:0;
+  const rmssdAnalise=analisarRMSSD(rmssd,baselineRMSSD,nRMSSD);
+  if(rmssd>=10&&baselineRMSSD&&nRMSSD>=3){const dRMSSD=rmssdAnalise.desvio;scoreRMSSD=dRMSSD>=10?100:dRMSSD>=0?80:dRMSSD>=-10?55:dRMSSD>=-20?30:10;}
+  let spo2Score=spo2>=97?5:spo2>=95?0:spo2>=92?-10:-20;
+  const scoreSPO2=clamp(50+spo2Score*3,0,100);
+  let pesoVFC,pesoRMSSD,pesoFCR,pesoSono,pesoSPO2;
+  if(scoreRMSSD!==null){pesoVFC=0.30;pesoRMSSD=0.15;pesoFCR=0.15;pesoSono=0.30;pesoSPO2=0.10;}
+  else{pesoVFC=0.40;pesoRMSSD=0;pesoFCR=0.20;pesoSono=0.30;pesoSPO2=0.10;}
+  if(candles&&candles.totalDias>=3){const dHa=Math.abs((hrv-candles.hrv)/candles.hrv)*100;if(dHa>15){if(scoreRMSSD!==null){pesoVFC=0.38;pesoRMSSD=0.17;pesoFCR=0.12;pesoSono=0.27;pesoSPO2=0.06;}else{pesoVFC=0.50;pesoFCR=0.15;pesoSono=0.28;pesoSPO2=0.07;}}}
+  let score=scoreVFC*pesoVFC+(scoreRMSSD!==null?scoreRMSSD*pesoRMSSD:0)+scoreFCR*pesoFCR+pontuacaoSono*pesoSono+scoreSPO2*pesoSPO2;
+  if(candles&&candles.totalDias>=3&&rpm>candles.rpm+1.0)score-=5;
+  score+=instabilidade;
+  if(estadoSaude==='cansado')score-=grauSaude==='leve'?6:grauSaude==='moderado'?12:20;
+  if(estadoSaude==='doente')score-=grauSaude==='leve'?18:grauSaude==='moderado'?32:45;
+  if(estadoSaude==='lesionado')score-=grauSaude==='leve'?8:grauSaude==='moderado'?16:25;
+  const debitoResidual=candles?(candles.ultimoTurno==='pesado'?8:candles.ultimoTurno==='moderado'?4:0):0;
+  score-=debitoResidual;
+  if(candles&&candles.debitoSono>0)score-=Math.min(15,candles.debitoSono*2);
+  const estresseAdj=estresse<=25?3:estresse<=50?0:estresse<=75?-8:-18;
+  score+=estresseAdj;
+  // ═══ TEMPERATURA CORPORAL ═══
+  let tempPenalty=0;
+  if(temp!==undefined&&temp>0){
+    if(temp>=38.5){alertaInfeccao=true;tempPenalty=40;}
+    else if(temp>=38.0)tempPenalty=25;
+    else if(temp>=37.3)tempPenalty=10;
+  }
+  score-=tempPenalty;
+  return{score:clamp(Math.round(score),0,100),alertaInfeccao,debitoResidual,instabilidade,rmssdAtivo:scoreRMSSD!==null};
+}
+
+function calcularCalorias(peso,paletes,sacosReator,tempoMarreta,fcTurno,treinoTempo,treinoFc,passos){
+  const calPaletes=6.5*peso*(paletes*4.5/60);
+  const calReator=8.0*peso*(sacosReator*0.5/60);
+  const calMarreta=8.0*peso*(tempoMarreta/60);
+  const calPassos=passos*0.045;
+  let calTreino=0;
+  if(treinoTempo>0&&treinoFc>0&&treinoTipo!=='nenhum')calTreino=Math.max(0,(treinoTempo*((0.6309*treinoFc)+(0.1988*peso)+(0.2017*IDADE)-55.0969))/4.184);
+  let calTurnoFC=0;
+  if(fcTurno>0&&intensidadeTurno!=='folga')calTurnoFC=Math.max(0,(MIN_ESFORCO_REAL_TURNO*((0.6309*fcTurno)+(0.1988*peso)+(0.2017*IDADE)-55.0969))/4.184);
+  const calTrabBracal=calPaletes+calReator+calMarreta;
+  const calMetodoMET=calPassos+calTrabBracal,calMetodoFC=calPassos+calTurnoFC;
+  let calAtivas=Math.round(Math.max(calMetodoMET,calMetodoFC));calAtivas+=Math.round(calTreino);
+  return{total:calAtivas,treino:Math.round(calTreino)};
+}
+
+function calcularStrain(paletes,sacosReator,tempoMarreta,treinoTempo,treinoFc,passos){
+  const rpeTurno=intensidadeTurno==='moderado'?4:intensidadeTurno==='pesado'?7:0;
+  const cargaTurno=rpeTurno*(12*60-150)+(paletes*15)+(sacosReator*0.5)+(tempoMarreta*0.5);
+  let zonaFC=0;if(treinoFc>0){const pctMax=treinoFc/FCMAX_REAL;zonaFC=pctMax>=0.9?5:pctMax>=0.8?4:pctMax>=0.7?3:pctMax>=0.6?2:pctMax>=0.5?1:0;}
+  const multTreino=treinoTipo==='forca'?1.2:treinoTipo==='aerobico'?1.0:treinoTipo==='alongamento'?0.3:0;
+  const cargaTreino=treinoTempo*zonaFC*multTreino;
+  const cargaTotal=cargaTurno+cargaTreino+(passos/100);
+  let strain=cargaTotal>0?3.5*Math.log(cargaTotal)-10:0;
+  return{strain:clamp(strain,0,21),trabPct:cargaTotal>0?cargaTurno/cargaTotal:0};
+}
+
+function calcularBateria(recovery,peso){
+  let inicial=recovery;if(inicial<5)inicial=5;if(inicial>100)inicial=100;
+  let dTurno=0;if(intensidadeTurno==='moderado')dTurno=20;else if(intensidadeTurno==='pesado')dTurno=40;
+  const treinoTempo=getInt('in-treino-tempo'),treinoFc=getInt('in-treino-fc');
+  let dTreino=0;
+  if(treinoTempo>0&&treinoFc>0&&treinoTipo!=='nenhum'){const rpe=treinoFc/FCMAX_REAL*10;dTreino=Math.min(Math.round((rpe*treinoTempo)/10),30);}
+  const estresse=getInt('in-estresse');
+  let dEstresse=0;if(estresse>75)dEstresse=15;else if(estresse>60)dEstresse=10;
+  // ═══ PASSOS — contextual por tipo de dia ═══
+  const passosBat=getNum('in-passos',0);
+  let dPassos=0;
+  if(intensidadeTurno==='folga'){
+    if(passosBat>18000)dPassos=8;else if(passosBat>12000)dPassos=4;
+  }else{
+    if(passosBat>13000)dPassos=12;else if(passosBat>8000)dPassos=7;else if(passosBat>3000)dPassos=3;
+  }
+  const totalDescarga=dTurno+dTreino+dEstresse+dPassos;
+  let rRecovery=0;
+  if(recBotas)rRecovery+=5;
+  if(recGelado)rRecovery+=4;
+  if(recSol)rRecovery+=4;
+  if(recMeditacao)rRecovery+=5;
+  rRecovery=Math.min(rRecovery,12);
+  const protConsumida=getInt('in-prot'),aguaConsumida=getInt('in-agua');
+  const mm=peso*(1-getNum('in-bf',22)/100),targetProt=Math.round(mm*2.5),targetAgua=Math.round(peso*35);
+  let rNutricao=0;
+  if(targetProt>0&&protConsumida>=targetProt*0.8&&targetAgua>0&&aguaConsumida>=targetAgua*0.8)rNutricao=10;
+  else if(targetProt>0&&protConsumida>=targetProt*0.5)rNutricao=4;
+  const totalRecarga=rRecovery+rNutricao;
+  const agora=clamp(inicial-totalDescarga+totalRecarga,0,100);
+  let status=agora>=80?'OPERACIONAL':agora>=60?'ESTÁVEL':agora>=40?'ATENÇÃO':agora>=20?'CANSADO':'LIMITE';
+  return{inicial,agora,status,dTurno,dTreino,dEstresse,dPassos,totalDescarga,rRecovery,rNutricao,totalRecarga};
+}
+function atualizarMural(rec,sono,candles,alertaInfeccao){
+  const box=getEl('mural-box'),label=getEl('mural-label'),text=getEl('mural-text');
+  if(!box||!text)return;box.classList.remove('alert','warn','illness');
+  let html,labelTxt='▌ Daily Briefing',cardIcone='⚪',cardTitulo='',cardTipo='';
+  if(estadoSaude==='doente'||alertaInfeccao){
+    box.classList.add('illness');labelTxt='⚠️ Alerta Sistêmico';cardIcone='⚠️';cardTitulo='REPOUSO ABSOLUTO';cardTipo='illness';
+    html='⚠️ <strong>Resposta imunológica detectada.</strong><br>Sistema imune ativado — corpo lutando contra algo.<br><br>🛌 <span class="hi-p">REPOUSO ABSOLUTO</span><br>💧 Hidratação extra<br>💊 Vitamina C · Zinco · sono 9h+';
+    label.textContent=labelTxt;text.innerHTML=html;atualizarCardBriefing(cardIcone,cardTitulo,cardTipo);return;
+  }
+  if(estadoSaude==='lesionado'){
+    box.classList.add('alert');labelTxt='❌ Alerta de Lesão';cardIcone='❌';cardTitulo='PROTOCOLO DE LESÃO';cardTipo='alert';
+    html='❌ <strong>Lesão '+grauSaude+'</strong> · protocolo de restrição.<br>🚫 Evitar carga na região · 🧊 RICE se inflamação.';
+    label.textContent=labelTxt;text.innerHTML=html;atualizarCardBriefing(cardIcone,cardTitulo,cardTipo);return;
+  }
+  const protConsumida=getInt('in-prot',0),aguaConsumida=getInt('in-agua',0),peso=getNum('in-peso',89);
+  const mm=peso*0.78,targetProt=Math.round(mm*2.5),targetAgua=3500;
+  const sonoHoras=sono.total/60,pctProt=targetProt>0?(protConsumida/targetProt):1,pctAgua=targetAgua>0?(aguaConsumida/targetAgua):1;
+  let avisos='';
+  if(pctProt<0.6)avisos+='<br>🥩 <strong>Aumenta proteína</strong> — risco de catabolismo';else if(pctProt<0.85)avisos+='<br>🥩 Foco em proteína hoje';
+  if(pctAgua<0.5)avisos+='<br>💧 <strong>Hidrate-se</strong> — desidratação';else if(pctAgua<0.8)avisos+='<br>💧 Hidrate-se mais';
+  if(sonoHoras<6&&sonoHoras>0)avisos+='<br>😴 Sono curto — priorize 8h+ hoje';
+  if(rec.score>=67){cardIcone='🟢';cardTitulo='TREINO PESADO LIBERADO';cardTipo='good';html='🟢 <strong>Recovery '+rec.score+'% — corpo recuperado</strong><br><br><em style="opacity:0.85">Sistema parassimpático dominante. Coração descansando bem em repouso, HRV elevada. Bateria fisiológica carregada.</em><br><br>🏋️ <span class="hi-g"><strong>HOJE: TREINO PESADO LIBERADO</strong></span>'+avisos;}
+  else if(rec.score>=34){box.classList.add('warn');cardIcone='🟡';cardTitulo='TREINO LEVE';cardTipo='warn';html='🟡 <strong>Recovery '+rec.score+'% — corpo processando desgaste</strong><br><br><em style="opacity:0.85">Sistema nervoso ainda em modo simpático do turno anterior. Coração trabalhando mais em repouso. HRV abaixo da média.</em><br><br>🏋️ <span class="hi-y"><strong>HOJE: TREINO LEVE</strong></span>'+avisos;}
+  else{box.classList.add('alert');cardIcone='🔴';cardTitulo='RECUPERAÇÃO';cardTipo='alert';html='🔴 <strong>Recovery '+rec.score+'% — sistema em alerta vermelho</strong><br><br><em style="opacity:0.85">Sistema simpático cravado no modo ligado — corpo não desligou do estresse físico acumulado. Cortisol provavelmente alto, inflamação rolando, HRV muito abaixo da média.</em><br><br>🛑 <span class="hi-r"><strong>HOJE: RECUPERAÇÃO</strong></span>'+avisos;}
+  label.textContent=labelTxt;text.innerHTML=html;atualizarCardBriefing(cardIcone,cardTitulo,cardTipo);
+}
+function atualizarCardBriefing(icone,titulo,tipo){const card=getEl('briefing-card'),iconeEl=getEl('briefing-icon'),tituloEl=getEl('briefing-titulo');if(!card)return;card.classList.remove('alert','warn','good','illness');if(tipo)card.classList.add(tipo);if(iconeEl)iconeEl.textContent=icone;if(tituloEl)tituloEl.textContent=titulo;}
+
+function atualizarHomeAneis(strain,rec,sono){
+  setText('val-home-strain',strain.strain.toFixed(1));atualizarAnel('ring-home-strain',(strain.strain/21)*100);
+  setText('val-home-recovery',rec.score+'%');atualizarAnel('ring-home-recovery',rec.score);
+  const rR=getEl('ring-home-recovery');if(rR)rR.style.stroke=corPorScore(rec.score);
+  if(rec.score<34)setText('sub-home-recovery','Crítico');else if(rec.score<67)setText('sub-home-recovery','Moderado');else if(rec.score<90)setText('sub-home-recovery','Bom');else setText('sub-home-recovery','Elite');
+  setText('val-home-sono',sono.score+'%');setText('unit-home-sono',formatMin(sono.total));atualizarAnel('ring-home-sono',sono.score);
+  const rS=getEl('ring-home-sono');if(rS)rS.style.stroke=corPorScore(sono.score);
+}
+
+function motorGeral(){
+  const peso=getNum('in-peso',89.15),bf=getNum('in-bf',22.0),hrv=getInt('in-hrv',50),rmssd=getInt('in-rmssd',0);
+  const rhr=getInt('in-rhr',60),rpm=getNum('in-rpm',14.0),spo2=getInt('in-spo2',97),estresse=getInt('in-estresse',30);
+  const temp=getNum('in-temp',36.5);
+  const passos=getNum('in-passos',0),calConsumidas=getInt('in-cal',0),protConsumida=getInt('in-prot',0);
+  const carbConsumido=getInt('in-carb',0),aguaConsumida=getInt('in-agua',0);
+  const paletes=getInt('in-paletes',0),sacosReator=getInt('in-reator',0),tempoMarreta=getInt('in-marreta',0);
+  const fcTurno=getInt('in-fc-turno',120),treinoTempo=getInt('in-treino-tempo',0),treinoFc=getInt('in-treino-fc',0);
+  const despertares=getInt('in-despertares',0),tempoAcordado=getInt('in-tempo-acordado',0);
+  const cochilo=getInt('in-cochilo',0);
+  const leveMin=getInt('in-leve-horas')*60+getInt('in-leve-minutos');
+  const profMin=getInt('in-prof-horas')*60+getInt('in-prof-minutos');
+  const remMin=getInt('in-rem-horas')*60+getInt('in-rem-minutos');
+
+  const mm=peso*(1-bf/100),tmb=Math.round(370+21.6*mm);
+  setText('out-mm',mm.toFixed(1));setText('out-tmb',tmb);
+  const targetProt=Math.round(mm*2.5);setText('target-prot-mini',targetProt);
+  const km=(passos*(ALTURA_FIXA*0.415/100))/1000;setText('out-km',km.toFixed(1));
+  const tonelagem=(paletes*40*0.025)+(sacosReator*0.025);setText('out-tonelagem',tonelagem.toFixed(1));
+
+  const sono=calcularSono(leveMin,profMin,remMin,despertares,tempoAcordado,cochilo);
+  setText('leg-leve',sono.pctLeve.toFixed(0)+'%');setText('leg-profundo',sono.pctProf.toFixed(0)+'%');setText('leg-rem',sono.pctRem.toFixed(0)+'%');
+  const segL=getEl('bar-seg-leve'),segP=getEl('bar-seg-profundo'),segR=getEl('bar-seg-rem');
+  if(segL)segL.style.flex=sono.leveMin;if(segP)segP.style.flex=sono.profMin;if(segR)segR.style.flex=sono.remMin;
+  setText('out-eficiencia',sono.eficiencia);setText('val-detail-sono',sono.score+'%');setText('lbl-detail-sono',formatMin(sono.total));
+  atualizarAnel('ring-detail-sono',sono.score,CIRC_DETAIL);
+  const rDS=getEl('ring-detail-sono');if(rDS)rDS.style.stroke=corPorScore(sono.score);
+
+  // Status temperatura
+  const tempStatusEl=getEl('temp-status');
+  if(tempStatusEl){
+    if(temp>=38.5){tempStatusEl.textContent='🔴 Febre Alta';tempStatusEl.className='neg';}
+    else if(temp>=38.0){tempStatusEl.textContent='🟡 Febre Baixa';tempStatusEl.className='warn';}
+    else if(temp>=37.3){tempStatusEl.textContent='🟡 Subfebril';tempStatusEl.className='warn';}
+    else if(temp>=35.5){tempStatusEl.textContent='🟢 Normal';tempStatusEl.className='pos';}
+    else{tempStatusEl.textContent='🔵 Hipotermia';tempStatusEl.className='';}
+  }
+
+  const spo2El=getEl('spo2-status');
+  if(spo2El){if(spo2>=97){spo2El.textContent='Ótimo';spo2El.className='pos';}else if(spo2>=95){spo2El.textContent='Normal';spo2El.className='';}else if(spo2>=92){spo2El.textContent='Baixo';spo2El.className='warn';}else{spo2El.textContent='Crítico';spo2El.className='neg';}}
+  const esEl=getEl('estresse-status'),esImp=getEl('estresse-impacto');
+  if(esEl&&esImp){if(estresse<=25){esEl.textContent='🟢 Relaxado';esEl.className='pos';esImp.textContent='+3 pts';esImp.className='pos';}else if(estresse<=50){esEl.textContent='⚪ Normal';esEl.className='';esImp.textContent='0 pts';esImp.className='';}else if(estresse<=75){esEl.textContent='🟡 Médio';esEl.className='warn';esImp.textContent='−8 pts';esImp.className='warn';}else{esEl.textContent='🔴 Alto';esEl.className='neg';esImp.textContent='−18 pts';esImp.className='neg';}}
+
+  const candles=obterMediasHistoricas();
+  const rec=calcularRecovery(hrv,rmssd,rhr,rpm,spo2,sono.score,candles,estresse,temp);
+  setText('val-detail-recovery',rec.score+'%');atualizarAnel('ring-detail-recovery',rec.score,CIRC_DETAIL);
+  const rDR=getEl('ring-detail-recovery');if(rDR)rDR.style.stroke=corPorScore(rec.score);
+  let subRec='';
+  if(estadoSaude==='doente')subRec='Sistema imunológico ativo';else if(estadoSaude==='lesionado')subRec='Lesão '+grauSaude+' — recuperação restrita';else if(rec.score<34)subRec='Sistema em débito';else if(rec.score<67)subRec='Recuperação parcial';else if(rec.score<90)subRec='Bem recuperado';else subRec='Prontidão máxima';
+  setText('sub-detail-recovery',subRec);
+
+  const strain=calcularStrain(paletes,sacosReator,tempoMarreta,treinoTempo,treinoFc,passos);
+  setText('val-detail-strain',strain.strain.toFixed(1));atualizarAnel('ring-detail-strain',(strain.strain/21)*100,CIRC_DETAIL);
+
+  const cal=calcularCalorias(peso,paletes,sacosReator,tempoMarreta,fcTurno,treinoTempo,treinoFc,passos);
+  setText('out-kcal-treino',cal.treino);setText('out-ativas',cal.total);
+  const gastoTotal=tmb+cal.total;setText('out-gasto-total',gastoTotal);
+  const metaCarb=intensidadeTurno==='pesado'?Math.round(peso*6):intensidadeTurno==='moderado'?Math.round(peso*4):(treinoTipo!=='nenhum'&&treinoTempo>0)?Math.round(peso*4):Math.round(peso*3);
+  setText('target-carb-mini',metaCarb);
+  const metaAgua=Math.round((peso*35)+(cal.total*0.5));setText('target-agua-mini',metaAgua);
+  const delta=calConsumidas-gastoTotal;setText('val-home-delta',(delta>0?'+':'')+delta);
+  const deltaCard=getEl('out-delta-card');if(deltaCard){deltaCard.textContent=(delta>0?'+':'')+delta+' kcal';deltaCard.className='stat-card-value '+(delta>200?'teal':delta<-400?'orange':'');}
+  const pctProt=targetProt>0?clamp(Math.round((protConsumida/targetProt)*100),0,100):0;setText('pct-prot',pctProt+'%');
+  const barProt=getEl('bar-prot');if(barProt){barProt.style.width=pctProt+'%';barProt.classList.toggle('full',pctProt>=100);}
+  const pctCarb=metaCarb>0?clamp(Math.round((carbConsumido/metaCarb)*100),0,100):0;setText('pct-carb',pctCarb+'%');
+  const barCarb=getEl('bar-carb');if(barCarb){barCarb.style.width=pctCarb+'%';barCarb.classList.toggle('full',pctCarb>=100);}
+
+  let estadoTxt='Saudável';
+  if(estadoSaude==='cansado')estadoTxt='Fadigado ('+grauSaude+')';else if(estadoSaude==='doente')estadoTxt='Doente ('+grauSaude+')';else if(estadoSaude==='lesionado')estadoTxt='Lesão ('+grauSaude+')';
+  setText('val-home-estado',estadoTxt);setText('sub-home-estado',peso.toFixed(1)+'kg · '+bf.toFixed(0)+'% BF');
+
+  const bateria=calcularBateria(rec.score,peso);
+  setText('val-home-energia',bateria.agora+'%');setText('sub-home-energia',bateria.status);setText('val-bateria',bateria.agora+'%');setText('bateria-status',bateria.status);
+  atualizarAnel('ring-detail-bateria',bateria.agora,CIRC_DETAIL);
+  const rBat=getEl('ring-detail-bateria');if(rBat)rBat.style.stroke=corPorScore(bateria.agora);
+  setText('bat-d-turno','−'+bateria.dTurno);setText('bat-d-treino','−'+bateria.dTreino);
+  setText('bat-d-estresse','−'+bateria.dEstresse);
+  setText('bat-d-passos','−'+bateria.dPassos);
+  setText('bateria-descarga-total','−'+bateria.totalDescarga);
+  setText('bat-r-recovery','+'+bateria.rRecovery);setText('bat-r-nutricao','+'+bateria.rNutricao);setText('bateria-recarga-total','+'+bateria.totalRecarga);
+  setText('bat-inicio',bateria.inicial+'%');setText('bat-agora',bateria.agora+'%');setText('bat-proxima',sono.score<70?'Sono (prioridade)':'Sono');
+
+  atualizarHomeAneis(strain,rec,sono);
+  atualizarMural(rec,sono,candles,rec.alertaInfeccao);
+  atualizarDayCounter();
+  if(candles){setText('central-acwr',candles.acwr.toFixed(2));setText('central-rec',candles.rec7d+'%');setText('central-sono',candles.debitoSono+'h');setText('central-total',candles.totalDias);renderGraficoSono();}
+  salvarInputs();
+}
+
+function renderGraficoSono(){
+  const hist=lerHistorico(),grafico=getEl('grafico-sono'),labels=getEl('grafico-sono-labels'),mediaEl=getEl('grafico-sono-media'),metaLinha=getEl('grafico-meta-linha');
+  if(!grafico||!hist.length)return;
+  const ultimos=hist.slice(-10),maxH=10,alturaPx=100;
+  grafico.innerHTML='';labels.innerHTML='';
+  if(metaLinha)metaLinha.style.bottom=((8/maxH)*alturaPx)+'px';
+  let totalMin=0;
+  ultimos.forEach((ciclo,i)=>{
+    const sono=ciclo.sono||{};
+    const leveMin=(sono.leveHoras||0)*60+(sono.leveMinutos||0);
+    const profMin=(sono.profHoras||0)*60+(sono.profMinutos||0);
+    const remMin=(sono.remHoras||0)*60+(sono.remMinutos||0);
+    const totalMinCiclo=leveMin+profMin+remMin;totalMin+=totalMinCiclo;
+    const totalH=totalMinCiclo/60,alturaTotal=Math.min(totalH/maxH,1)*alturaPx;
+    const corBase=totalH>=8?'var(--accent-green)':totalH>=6?'var(--accent-yellow)':'var(--accent-red)';
+    const wrap=document.createElement('div');wrap.style.cssText='flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:'+alturaPx+'px;gap:1px;cursor:default;';wrap.title=totalH.toFixed(1)+'h';
+    const addSeg=(h,cor)=>{if(h<=0)return;const seg=document.createElement('div');seg.style.cssText='height:'+h+'px;background:'+cor+';border-radius:2px;opacity:0.9;';wrap.appendChild(seg);};
+    if(totalMinCiclo>0){addSeg(alturaTotal*(remMin/totalMinCiclo),'#f472b6');addSeg(alturaTotal*(profMin/totalMinCiclo),'var(--accent-purple)');addSeg(alturaTotal*(leveMin/totalMinCiclo),'var(--accent-blue)');}else{addSeg(3,'var(--border)');}
+    const linha=document.createElement('div');linha.style.cssText='height:2px;background:'+corBase+';border-radius:1px;margin-top:2px;';wrap.appendChild(linha);grafico.appendChild(wrap);
+    const lbl=document.createElement('div');lbl.style.cssText='flex:1;text-align:center;font-size:9px;color:'+(i===ultimos.length-1?'var(--accent-teal)':'var(--text-muted)')+';letter-spacing:0;';
+    const d=new Date(ciclo.ts||Date.now());lbl.textContent=['D','S','T','Q','Q','S','S'][d.getDay()];labels.appendChild(lbl);
+  });
+  if(ultimos.length>0&&mediaEl){const mediaH=(totalMin/ultimos.length/60).toFixed(1);mediaEl.textContent='Média: '+mediaH+'h por ciclo';mediaEl.style.color=parseFloat(mediaH)>=7?'var(--accent-green)':parseFloat(mediaH)>=5.5?'var(--accent-yellow)':'var(--accent-red)';}
+}
+
+function atualizarDayCounter(){
+  const dias=['DOM','SEG','TER','QUA','QUI','SEX','SÁB'],meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const d=new Date();setText('home-day',dias[d.getDay()]+' '+String(d.getDate()).padStart(2,'0')+'/'+meses[d.getMonth()]);
+  const hist=lerHistorico(),calibBadge=getEl('calib-badge');
+  if(calibBadge){if(hist.length<7){calibBadge.classList.add('show');setText('calib-dias',hist.length+'/7');const bar=getEl('calib-bar-inner');if(bar)bar.style.width=(hist.length/7*100)+'%';}else calibBadge.classList.remove('show');}
+}
+
+function salvarInputs(){
+  try{
+    const data={
+      peso:getNum('in-peso'),bf:getNum('in-bf'),hrv:getInt('in-hrv'),rmssd:getInt('in-rmssd'),rhr:getInt('in-rhr'),rpm:getNum('in-rpm'),spo2:getInt('in-spo2'),estresse:getInt('in-estresse'),
+      temp:getNum('in-temp'),cochilo:getInt('in-cochilo'),
+      passos:getNum('in-passos'),cal:getInt('in-cal'),prot:getInt('in-prot'),carb:getInt('in-carb'),agua:getInt('in-agua'),
+      paletes:getInt('in-paletes'),reator:getInt('in-reator'),marreta:getInt('in-marreta'),fcTurno:getInt('in-fc-turno'),treinoTempo:getInt('in-treino-tempo'),treinoFc:getInt('in-treino-fc'),
+      leveH:getInt('in-leve-horas'),leveM:getInt('in-leve-minutos'),profH:getInt('in-prof-horas'),profM:getInt('in-prof-minutos'),remH:getInt('in-rem-horas'),remM:getInt('in-rem-minutos'),
+      despertares:getInt('in-despertares'),tempoAcordado:getInt('in-tempo-acordado')
+    };
+    localStorage.setItem('maxcore_inputs',JSON.stringify(data));
+  }catch(e){}
+}
+
+function restaurarInputs(){
+  try{
+    const s=localStorage.getItem('maxcore_inputs');if(!s)return;const d=JSON.parse(s);
+    setV('in-peso',d.peso);setV('in-bf',d.bf);setV('in-hrv',d.hrv);setV('in-rmssd',d.rmssd);setV('in-rhr',d.rhr);setV('in-rpm',d.rpm);setV('in-spo2',d.spo2);setV('in-estresse',d.estresse);
+    setV('in-temp',d.temp);setV('in-cochilo',d.cochilo);
+    setV('in-passos',d.passos);setV('in-cal',d.cal);setV('in-prot',d.prot);setV('in-carb',d.carb);setV('in-agua',d.agua);
+    setV('in-paletes',d.paletes);setV('in-reator',d.reator);setV('in-marreta',d.marreta);setV('in-fc-turno',d.fcTurno);setV('in-treino-tempo',d.treinoTempo);setV('in-treino-fc',d.treinoFc);
+    setV('in-leve-horas',d.leveH);setV('in-leve-minutos',d.leveM);setV('in-prof-horas',d.profH);setV('in-prof-minutos',d.profM);setV('in-rem-horas',d.remH);setV('in-rem-minutos',d.remM);
+    setV('in-despertares',d.despertares);setV('in-tempo-acordado',d.tempoAcordado);
+  }catch(e){}
+}
+
+function aplicarBridgeData(manual){
+  if(typeof BioBridge==='undefined')return;
+  const data=BioBridge.pullAll();let mudou=false,resumoMsg=[];
+  if(data.sleep){
+    const s=data.sleep;
+    if(s.leveMin!=null){setV('in-leve-horas',Math.floor(s.leveMin/60));setV('in-leve-minutos',s.leveMin%60);mudou=true;}
+    if(s.profMin!=null){setV('in-prof-horas',Math.floor(s.profMin/60));setV('in-prof-minutos',s.profMin%60);mudou=true;}
+    if(s.remMin!=null){setV('in-rem-horas',Math.floor(s.remMin/60));setV('in-rem-minutos',s.remMin%60);mudou=true;}
+    if(s.despertares!=null){setV('in-despertares',s.despertares);mudou=true;}
+    if(s.tempoAcordado!=null){setV('in-tempo-acordado',s.tempoAcordado);mudou=true;}
+    if(s.hrv){setV('in-hrv',s.hrv);mudou=true;}if(s.rmssd){setV('in-rmssd',s.rmssd);mudou=true;}
+    if(s.rhr){setV('in-rhr',s.rhr);mudou=true;}if(s.rpm){setV('in-rpm',s.rpm);mudou=true;}if(s.spo2){setV('in-spo2',s.spo2);mudou=true;}
+    if(s.temp){setV('in-temp',s.temp);mudou=true;}
+    if(s.estresse!=null&&s.estresse>0){setV('in-estresse',s.estresse);mudou=true;}
+    if(s.cocholoMin!=null&&s.cocholoMin>0){setV('in-cochilo',s.cocholoMin);mudou=true;}
+    if(s.tipoSono==='dia'||s.tipoSono==='noite')setTipoSono(s.tipoSono);
+    resumoMsg.push('SLEEP');
+  }
+  if(data.pulse){if(data.pulse.fcTurno){setV('in-fc-turno',data.pulse.fcTurno);mudou=true;}if(data.pulse.fcTreino){setV('in-treino-fc',data.pulse.fcTreino);mudou=true;}if(data.pulse.estresse!=null){setV('in-estresse',data.pulse.estresse);mudou=true;}resumoMsg.push('PULSE');}
+  if(data.work){const w=data.work;if(w.paletes!=null){setV('in-paletes',w.paletes);mudou=true;}if(w.reator!=null){setV('in-reator',w.reator);mudou=true;}if(w.marreta!=null){setV('in-marreta',w.marreta);mudou=true;}if(w.fcTurno){setV('in-fc-turno',w.fcTurno);mudou=true;}if(w.intensidade==='folga'||w.intensidade==='moderado'||w.intensidade==='pesado')setTurno(w.intensidade);if(w.passos!=null){setV('in-passos',w.passos);mudou=true;}resumoMsg.push('WORK');}
+  if(data.fuel){const f=data.fuel;if(f.kcal!=null){setV('in-cal',f.kcal);mudou=true;}if(f.prot!=null){setV('in-prot',f.prot);mudou=true;}if(f.carb!=null){setV('in-carb',f.carb);mudou=true;}if(f.agua!=null){setV('in-agua',f.agua);mudou=true;}resumoMsg.push('FUEL');}
+  if(data.jejum)resumoMsg.push('JEJUM');
+  if(mudou)motorGeral();atualizarSyncBadge(data);
+  if(manual){if(resumoMsg.length>0)toast('Sincronizado: '+resumoMsg.join(' · '),'success');else toast('Nenhum app conectado ainda','warn');}else if(mudou)bridgeFlash(resumoMsg.length===1?resumoMsg[0]:'Sync');
+}
+
+function atualizarSyncBadge(data){
+  if(typeof BioBridge==='undefined')return;if(!data)data=BioBridge.pullAll();
+  ['pulse','sleep','work','fuel','jejum'].forEach(app=>{
+    const row=getEl('sync-'+app);if(!row)return;const timeEl=row.querySelector('.sync-app-time');const d=data[app];
+    row.classList.remove('connected','stale');
+    if(!d||!d.ts){timeEl.textContent='desconectado';return;}
+    const idade=Date.now()-d.ts,txt=BioBridge.tempoDesde(d.ts);
+    if(idade<3*60*60*1000){row.classList.add('connected');timeEl.textContent='✓ há '+txt;}else{row.classList.add('stale');timeEl.textContent='⚠ há '+txt;}
+  });
+}
+
+function pedirEncerrarCiclo(){motorGeral();const strain=getEl('val-home-strain').textContent,rec=getEl('val-home-recovery').textContent,sono=getEl('val-home-sono').textContent,bat=getEl('val-home-energia').textContent;setHTML('confirm-resume','<strong style="color:var(--accent-yellow)">Strain '+strain+'</strong> · <strong style="color:var(--accent-teal)">Recovery '+rec+'</strong> · <strong style="color:var(--accent-purple)">Sono '+sono+'</strong> · <strong style="color:var(--accent-teal)">Bateria '+bat+'</strong>');getEl('modal-confirm').classList.add('show');}
+function cancelarEncerrar(){getEl('modal-confirm').classList.remove('show');}
+
+function confirmarEncerrarCiclo(){
+  getEl('modal-confirm').classList.remove('show');
+  try{
+    motorGeral();
+    const hrv=getInt('in-hrv',50),rmssd=getInt('in-rmssd',0),rhr=getInt('in-rhr',60),rpm=getNum('in-rpm',14);
+    const strain=parseFloat(getEl('val-home-strain').textContent)||0,recVal=parseInt(getEl('val-home-recovery').textContent)||0;
+    const leveMin=getInt('in-leve-horas')*60+getInt('in-leve-minutos'),profMin=getInt('in-prof-horas')*60+getInt('in-prof-minutos'),remMin=getInt('in-rem-horas')*60+getInt('in-rem-minutos');
+    const sonoTotal=leveMin+profMin+remMin;
+    let hist=lerHistorico();
+    hist.push({hrv,rhr,rpm,rmssd,strain,recovery_score:recVal,sonoTotal,turno:intensidadeTurno,tipoSono,ts:Date.now()});
+    if(hist.length>MAX_HISTORICO)hist.shift();
+    localStorage.setItem('bio_historico_ciclos',JSON.stringify(hist));
+    toast('✅ Ciclo salvo! Dia '+hist.length,'success');
+    resetarCampos();if(typeof BioBridge!=='undefined')BioBridge.clearAll();motorGeral();atualizarSyncBadge();
+  }catch(e){toast('Falha ao salvar','error');console.error(e);}
+}
+
+function resetarCampos(){
+  ['in-passos','in-cal','in-prot','in-carb','in-agua','in-treino-tempo','in-treino-fc','in-paletes','in-marreta','in-reator','in-despertares','in-tempo-acordado','in-cochilo'].forEach(id=>{const el=getEl(id);if(el)el.value=0;});
+  setV('in-fc-turno',120);setV('in-spo2',97);setV('in-estresse',30);setV('in-temp',36.5);
+  recBotas=false;recGelado=false;recSol=false;recMeditacao=false;
+  ['botas','gelado','sol','meditacao'].forEach(r=>{localStorage.setItem('bio_rec_'+r,'false');const btn=getEl('btn-rec-'+r);if(btn)btn.classList.remove('active','rec');});
+  setTurno('folga');setSaude('normal');setTipoSono('noite');setTreinoTipo('nenhum');
+}
+
+function exportarDados(){try{const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&(k.startsWith('bio_')||k.startsWith('maxcore_')))data[k]=localStorage.getItem(k);}const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='MAXCORE_Backup_'+new Date().toISOString().split('T')[0]+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('Backup exportado!','success');}catch(e){toast('Erro ao exportar','error');}}
+function importarDados(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=(e)=>{try{const d=JSON.parse(e.target.result);for(const k in d){if(k.startsWith('bio_')||k.startsWith('maxcore_'))localStorage.setItem(k,d[k]);}toast('Backup importado! Recarregando...','success');setTimeout(()=>location.reload(),1500);}catch(e){toast('Arquivo inválido','error');}};r.readAsText(f);}
+function resetarHistorico(){if(!confirm('Apagar TODO o histórico? Esta ação não pode ser desfeita.'))return;if(!confirm('Tem certeza absoluta? Vai começar do DAY 1.'))return;localStorage.removeItem('bio_historico_ciclos');localStorage.removeItem('maxcore_data_inicio');toast('Histórico apagado. Recarregando...','success');setTimeout(()=>location.reload(),1500);}
+
+let calMesOffset=0;
+function mudarMesCalendario(dir){calMesOffset+=dir;renderCalendario();}
+
+function renderCalendario(){
+  const hist=lerHistorico();
+  const agora=new Date();
+  const mesAlvo=new Date(agora.getFullYear(),agora.getMonth()+calMesOffset,1);
+  const ano=mesAlvo.getFullYear(),mes=mesAlvo.getMonth();
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  setText('cal-titulo',meses[mes]+' '+ano);
+  // Mapeia histórico por data
+  const mapa={};
+  hist.forEach(c=>{
+    const ts=c.ts||c.timestamp;if(!ts)return;
+    const d=new Date(ts);
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    mapa[key]={score:c.recovery_score||0,turno:c.turno||'folga'};
+  });
+  const grid=getEl('cal-grid');if(!grid)return;grid.innerHTML='';
+  const primeiroDia=new Date(ano,mes,1).getDay();
+  const ultimoDia=new Date(ano,mes+1,0).getDate();
+  const hoje=new Date();
+  // Células vazias antes do dia 1
+  for(let i=0;i<primeiroDia;i++){grid.appendChild(document.createElement('div'));}
+  for(let dia=1;dia<=ultimoDia;dia++){
+    const key=ano+'-'+String(mes+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+    const dado=mapa[key];
+    const eHoje=hoje.getFullYear()===ano&&hoje.getMonth()===mes&&hoje.getDate()===dia;
+    let bg='var(--bg-card-deep)',border='var(--border-soft)',label='',scoreText='';
+    if(dado){
+      label=dado.turno==='folga'?'F':'T';
+      scoreText=dado.score+'%';
+      if(dado.score>=67){bg='rgba(74,222,128,0.15)';border='rgba(74,222,128,0.4)';}
+      else if(dado.score>=34){bg='rgba(234,179,8,0.15)';border='rgba(234,179,8,0.4)';}
+      else{bg='rgba(239,68,68,0.15)';border='rgba(239,68,68,0.4)';}
+    }
+    const cell=document.createElement('div');
+    cell.style.cssText='background:'+bg+';border:1px solid '+border+';border-radius:8px;padding:4px 2px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;'+(eHoje?'box-shadow:0 0 0 1.5px var(--accent-teal);':'');
+    const numEl=document.createElement('div');
+    numEl.style.cssText='font-size:12px;color:'+(eHoje?'var(--accent-teal)':dado?'var(--text-primary)':'var(--text-dim)')+';';
+    numEl.textContent=dia;cell.appendChild(numEl);
+    if(dado){
+      const lblEl=document.createElement('div');lblEl.style.cssText='font-size:9px;color:var(--text-muted);letter-spacing:0.05em;';lblEl.textContent=label;cell.appendChild(lblEl);
+      const scEl=document.createElement('div');scEl.style.cssText='font-size:9px;color:var(--text-secondary);';scEl.textContent=scoreText;cell.appendChild(scEl);
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function inicializar(){
+  restaurarInputs();
+  const t=localStorage.getItem('bio_turno')||'folga',s=localStorage.getItem('bio_saude')||'normal',g=localStorage.getItem('bio_grau')||'moderado',ts=localStorage.getItem('bio_tipo_sono')||'noite',tt=localStorage.getItem('bio_treino_tipo')||'nenhum';
+  const ttArray=JSON.parse(localStorage.getItem('bio_treino_tipos')||'null');
+  if(ttArray&&ttArray.length>0){treinoTipos=ttArray;treinoTipos.forEach(t=>{const btn=getEl('btn-treino-'+t);if(btn)btn.classList.add('active');});}else{setTreinoTipo(tt);}
+  if(localStorage.getItem('bio_rec_gelado')==='true')recGelado=true;
+  if(localStorage.getItem('bio_rec_sol')==='true')recSol=true;
+  if(localStorage.getItem('bio_rec_meditacao')==='true')recMeditacao=true;
+  grauSaude=g;setTurno(t);setSaude(s);setGrauSaude(g);setTipoSono(ts);
+  ['botas','gelado','sol','meditacao'].forEach(r=>{
+    const val={botas:recBotas,gelado:recGelado,sol:recSol,meditacao:recMeditacao}[r];
+    const btn=getEl('btn-rec-'+r);if(btn&&val)btn.classList.add('active','rec');
+  });
+  motorGeral();
+  if(typeof BioBridge!=='undefined'){aplicarBridgeData(false);BioBridge.listen((data,source)=>{console.log('[BioBridge] Sync de:',source);aplicarBridgeData(false);});}
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inicializar);else inicializar();
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.update());});navigator.serviceWorker.register('./service-worker.js?v=1.2').then(reg=>{console.log('[MAX.CORE] PWA online:',reg.scope);reg.update();}).catch(err=>console.log('[MAX.CORE] SW falhou:',err));});}
+</script>
+</body>
+</html>
