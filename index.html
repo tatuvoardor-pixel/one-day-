@@ -920,8 +920,11 @@ function calcularBateria(recovery,peso){
   let inicial=recovery;if(inicial<5)inicial=5;if(inicial>100)inicial=100;
   let dTurno=0;if(intensidadeTurno==='moderado')dTurno=20;else if(intensidadeTurno==='pesado')dTurno=40;
   const treinoTempo=getInt('in-treino-tempo'),treinoFc=getInt('in-treino-fc');
+  const treinoTempo2=getInt('in-treino2-tempo'),treinoFc2=getInt('in-treino2-fc');
   let dTreino=0;
-  if(treinoTempo>0&&treinoFc>0&&treinoTipo!=='nenhum'){const rpe=treinoFc/FCMAX_REAL*10;dTreino=Math.min(Math.round((rpe*treinoTempo)/10),30);}
+  if(treinoTempo>0&&treinoFc>0&&treinoTipo!=='nenhum'){const rpe=treinoFc/FCMAX_REAL*10;dTreino+=Math.round((rpe*treinoTempo)/10);}
+  if(treinoTempo2>0&&treinoFc2>0&&treinoTipo2!=='nenhum'){const rpe2=treinoFc2/FCMAX_REAL*10;dTreino+=Math.round((rpe2*treinoTempo2)/10);}
+  dTreino=Math.min(dTreino,40);
   const estresse=getInt('in-estresse');
   let dEstresse=0;if(estresse>75)dEstresse=15;else if(estresse>60)dEstresse=10;
   // ═══ PASSOS — contextual por tipo de dia ═══
