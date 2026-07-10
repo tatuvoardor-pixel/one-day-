@@ -1237,6 +1237,7 @@ function resetarCampos(){
     const b2=getEl('btn-treino2-'+t);if(b2)b2.classList.remove('active');
   });
   setTurno('folga');setSaude('normal');setTipoSono('noite');
+}
 
 function exportarDados(){try{const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&(k.startsWith('bio_')||k.startsWith('maxcore_')))data[k]=localStorage.getItem(k);}const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='MAXCORE_Backup_'+new Date().toISOString().split('T')[0]+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('Backup exportado!','success');}catch(e){toast('Erro ao exportar','error');}}
 function importarDados(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=(e)=>{try{const d=JSON.parse(e.target.result);for(const k in d){if(k.startsWith('bio_')||k.startsWith('maxcore_'))localStorage.setItem(k,d[k]);}toast('Backup importado! Recarregando...','success');setTimeout(()=>location.reload(),1500);}catch(e){toast('Arquivo inválido','error');}};r.readAsText(f);}
