@@ -1257,7 +1257,7 @@ function confirmarEncerrarCiclo(){
     const leveMin=getInt('in-leve-horas')*60+getInt('in-leve-minutos'),profMin=getInt('in-prof-horas')*60+getInt('in-prof-minutos'),remMin=getInt('in-rem-horas')*60+getInt('in-rem-minutos');
     const sonoTotal=leveMin+profMin+remMin;
     let hist=lerHistorico();
-    hist.push({hrv,rhr,rpm,rmssd,strain,recovery_score:recVal,sonoTotal,turno:intensidadeTurno,tipoSono,ts:Date.now()});
+    hist.push({hrv,rhr,rpm,rmssd,strain,recovery_score:recVal,sonoTotal,turno:intensidadeTurno,tipoSono,ts:Date.now(),sono:{leveHoras:getInt('in-leve-horas'),leveMinutos:getInt('in-leve-minutos'),profHoras:getInt('in-prof-horas'),profMinutos:getInt('in-prof-minutos'),remHoras:getInt('in-rem-horas'),remMinutos:getInt('in-rem-minutos')}});
     if(hist.length>MAX_HISTORICO)hist.shift();
     localStorage.setItem('bio_historico_ciclos',JSON.stringify(hist));
     toast('✅ Ciclo salvo! Dia '+hist.length,'success');
@@ -1341,6 +1341,8 @@ function inicializar(){
   const ttArray2=JSON.parse(localStorage.getItem('bio_treino_tipos2')||'null');
   if(ttArray2&&ttArray2.length>0){treinoTipos2=ttArray2;treinoTipos2.forEach(t=>{const btn=getEl('btn-treino2-'+t);if(btn)btn.classList.add('active');});}
   if(localStorage.getItem('bio_doenca_auto')==='true')doencaAutomatica=true;
+  if(localStorage.getItem('bio_rec_botas')==='true')recBotas=true;
+  if(localStorage.getItem('bio_rec_gelado')==='true')recGelado=true;
   if(localStorage.getItem('bio_rec_sol')==='true')recSol=true;
   if(localStorage.getItem('bio_rec_meditacao')==='true')recMeditacao=true;
   grauSaude=g;setTurno(t);setSaude(s);setGrauSaude(g);setTipoSono(ts);
