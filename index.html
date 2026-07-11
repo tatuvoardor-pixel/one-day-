@@ -661,7 +661,7 @@
 <script src="bio-bridge.js"></script>
 <script>
 const CIRC_HOME=94.24,CIRC_DETAIL=282.74,ALTURA_FIXA=182,IDADE=37,FCMAX_REAL=195,MIN_ESFORCO_REAL_TURNO=240,JANELA_AGUDA=7,JANELA_CRONICA=28,MAX_HISTORICO=90;
-let telaAtual='home',intensidadeTurno='folga',estadoSaude='normal',grauSaude='moderado',locaisLesao=[],tipoSono='noite',recBotas=false,recGelado=false,recSol=false,recMeditacao=false;
+let telaAtual='home',intensidadeTurno='folga',estadoSaude='normal',grauSaude='moderado',locaisLesao=[],tipoSono='noite',recBotas=false,recGelado=false,recSol=false,recMeditacao=false,doencaAutomatica=false;
 let treinoTipos=JSON.parse(localStorage.getItem('bio_treino_tipos')||'[]');
 let treinoTipos2=JSON.parse(localStorage.getItem('bio_treino_tipos2')||'[]');
 
@@ -721,6 +721,22 @@ function setTurno(modo){
   ['folga','moderado','pesado'].forEach(m=>{const b=getEl('btn-turno-'+m);if(b){b.classList.toggle('active',m===modo);if(m===modo){b.classList.remove('medio','pesado');if(modo==='moderado')b.classList.add('medio');if(modo==='pesado')b.classList.add('pesado');}}});
   motorGeral();
 }
+function atualizarBotoesSaude(){
+  const map={normal:'healthy',cansado:'tired',doente:'sick',lesionado:'injury'};
+  ['normal','cansado','doente','lesionado'].forEach(m=>{
+    const b=getEl('btn-saude-'+m);if(!b)return;
+    b.classList.remove('active','healthy','tired','sick','injury');
+    if(m===estadoSaude){b.classList.add('active');b.classList.add(map[m]);}
+  });
+  const panel=getEl('grau-panel'),label=getEl('grau-label');
+  if(estadoSaude==='normal'){if(panel)panel.style.display='none';}
+  else{
+    if(panel)panel.style.display='block';
+    if(label){if(estadoSaude==='cansado')label.textContent='Grau de Fadiga';else if(estadoSaude==='doente')label.textContent='Grau da Doença';else if(estadoSaude==='lesionado')label.textContent='Grau da Lesão';}
+  }
+  ['leve','moderado','severo'].forEach(g=>{const b=getEl('btn-grau-'+g);if(b)b.classList.toggle('active',g===grauSaude);});
+}
+
 function setSaude(modo){
   estadoSaude=modo;localStorage.setItem('bio_saude',modo);
   const map={normal:'healthy',cansado:'tired',doente:'sick',lesionado:'injury'};
@@ -1040,6 +1056,27 @@ function motorGeral(){
   const esEl=getEl('estresse-status'),esImp=getEl('estresse-impacto');
   if(esEl&&esImp){if(estresse<=25){esEl.textContent='🟢 Relaxado';esEl.className='pos';esImp.textContent='+3 pts';esImp.className='pos';}else if(estresse<=50){esEl.textContent='⚪ Normal';esEl.className='';esImp.textContent='0 pts';esImp.className='';}else if(estresse<=75){esEl.textContent='🟡 Médio';esEl.className='warn';esImp.textContent='−8 pts';esImp.className='warn';}else{esEl.textContent='🔴 Alto';esEl.className='neg';esImp.textContent='−18 pts';esImp.className='neg';}}
 
+  // ═══ AUTO-DETECÇÃO DE DOENÇA POR TEMPERATURA ═══
+  if(estadoSaude==='normal'||doencaAutomatica){
+    if(temp>=38.5){
+      if(!doencaAutomatica||estadoSaude!=='doente'||grauSaude!=='moderado'){
+        doencaAutomatica=true;estadoSaude='doente';grauSaude='moderado';
+        localStorage.setItem('bio_doenca_auto','true');localStorage.setItem('bio_saude','doente');localStorage.setItem('bio_grau','moderado');
+        atualizarBotoesSaude();
+      }
+    }else if(temp>=38.0){
+      if(!doencaAutomatica||estadoSaude!=='doente'||grauSaude!=='leve'){
+        doencaAutomatica=true;estadoSaude='doente';grauSaude='leve';
+        localStorage.setItem('bio_doenca_auto','true');localStorage.setItem('bio_saude','doente');localStorage.setItem('bio_grau','leve');
+        atualizarBotoesSaude();
+      }
+    }else if(temp<37.3&&doencaAutomatica){
+      doencaAutomatica=false;estadoSaude='normal';
+      localStorage.setItem('bio_doenca_auto','false');localStorage.setItem('bio_saude','normal');
+      atualizarBotoesSaude();
+    }
+  }
+
   const candles=obterMediasHistoricas();
   const rec=calcularRecovery(hrv,rmssd,rhr,rpm,spo2,sono.score,candles,estresse,temp);
   setText('val-detail-recovery',rec.score+'%');atualizarAnel('ring-detail-recovery',rec.score,CIRC_DETAIL);
@@ -1231,6 +1268,7 @@ function confirmarEncerrarCiclo(){
 function resetarCampos(){
   ['in-passos','in-cal','in-prot','in-carb','in-agua','in-treino-tempo','in-treino-fc','in-treino2-tempo','in-treino2-fc','in-paletes','in-marreta','in-reator','in-despertares','in-tempo-acordado','in-cochilo'].forEach(id=>{const el=getEl(id);if(el)el.value=0;});
   setV('in-fc-turno',120);setV('in-spo2',97);setV('in-estresse',30);setV('in-temp',36.5);
+  doencaAutomatica=false;localStorage.setItem('bio_doenca_auto','false');
   recBotas=false;recGelado=false;recSol=false;recMeditacao=false;
   ['botas','gelado','sol','meditacao'].forEach(r=>{localStorage.setItem('bio_rec_'+r,'false');const btn=getEl('btn-rec-'+r);if(btn)btn.classList.remove('active','rec');});
   treinoTipos=[];treinoTipos2=[];
@@ -1302,7 +1340,7 @@ function inicializar(){
   if(ttArray&&ttArray.length>0){treinoTipos=ttArray;treinoTipos.forEach(t=>{const btn=getEl('btn-treino-'+t);if(btn)btn.classList.add('active');});}else{setTreinoTipo(tt);}
   const ttArray2=JSON.parse(localStorage.getItem('bio_treino_tipos2')||'null');
   if(ttArray2&&ttArray2.length>0){treinoTipos2=ttArray2;treinoTipos2.forEach(t=>{const btn=getEl('btn-treino2-'+t);if(btn)btn.classList.add('active');});}
-  if(localStorage.getItem('bio_rec_gelado')==='true')recGelado=true;
+  if(localStorage.getItem('bio_doenca_auto')==='true')doencaAutomatica=true;
   if(localStorage.getItem('bio_rec_sol')==='true')recSol=true;
   if(localStorage.getItem('bio_rec_meditacao')==='true')recMeditacao=true;
   grauSaude=g;setTurno(t);setSaude(s);setGrauSaude(g);setTipoSono(ts);
