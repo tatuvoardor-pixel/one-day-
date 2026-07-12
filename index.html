@@ -918,17 +918,28 @@ function calcularCalorias(peso,paletes,sacosReator,tempoMarreta,fcTurno,treinoTe
 }
 
 function calcularStrain(paletes,sacosReator,tempoMarreta,treinoTempo,treinoFc,passos,treinoTempo2,treinoFc2){
-  const rpeTurno=intensidadeTurno==='moderado'?4:intensidadeTurno==='pesado'?7:0;
-  const cargaTurno=rpeTurno*(12*60-150)+(paletes*15)+(sacosReator*0.5)+(tempoMarreta*0.5);
-  let zonaFC=0;if(treinoFc>0){const pctMax=treinoFc/FCMAX_REAL;zonaFC=pctMax>=0.9?5:pctMax>=0.8?4:pctMax>=0.7?3:pctMax>=0.6?2:pctMax>=0.5?1:0;}
-  const multTreino=treinoTipo==='forca'?1.2:treinoTipo==='aerobico'?1.0:treinoTipo==='alongamento'?0.3:0;
-  const cargaTreino=treinoTempo*zonaFC*multTreino;
-  let zonaFC2=0;if(treinoFc2>0){const pctMax2=treinoFc2/FCMAX_REAL;zonaFC2=pctMax2>=0.9?5:pctMax2>=0.8?4:pctMax2>=0.7?3:pctMax2>=0.6?2:pctMax2>=0.5?1:0;}
-  const multTreino2=treinoTipo2==='forca'?1.2:treinoTipo2==='aerobico'?1.0:treinoTipo2==='alongamento'?0.3:0;
-  const cargaTreino2=treinoTempo2*zonaFC2*multTreino2;
-  const cargaTotal=cargaTurno+cargaTreino+cargaTreino2+(passos/100);
+  // Turno é multiplicador do esforço real — não carga fixa de horas
+  const multTurno=intensidadeTurno==='pesado'?2.0:intensidadeTurno==='moderado'?1.5:1.0;
+
+  // Carga da fábrica × multiplicador do turno
+  const cargaFabrica=((paletes*15)+(sacosReator*0.5)+(tempoMarreta*0.5)+(passos/100))*multTurno;
+
+  // Treino — independente do turno
+  let cargaTreino=0;
+  if(treinoTempo>0&&treinoFc>0&&treinoTipo!=='nenhum'){
+    let zonaFC=0;const pctMax=treinoFc/FCMAX_REAL;zonaFC=pctMax>=0.9?5:pctMax>=0.8?4:pctMax>=0.7?3:pctMax>=0.6?2:pctMax>=0.5?1:0;
+    const mult=treinoTipo==='forca'?1.2:treinoTipo==='aerobico'?1.0:treinoTipo==='alongamento'?0.3:0;
+    cargaTreino+=treinoTempo*zonaFC*mult;
+  }
+  if(treinoTempo2>0&&treinoFc2>0&&treinoTipo2!=='nenhum'){
+    let zonaFC2=0;const pctMax2=treinoFc2/FCMAX_REAL;zonaFC2=pctMax2>=0.9?5:pctMax2>=0.8?4:pctMax2>=0.7?3:pctMax2>=0.6?2:pctMax2>=0.5?1:0;
+    const mult2=treinoTipo2==='forca'?1.2:treinoTipo2==='aerobico'?1.0:treinoTipo2==='alongamento'?0.3:0;
+    cargaTreino+=treinoTempo2*zonaFC2*mult2;
+  }
+
+  const cargaTotal=cargaFabrica+cargaTreino;
   const strain=cargaTotal>0?3.5*Math.log(cargaTotal)-10:0;
-  return{strain:clamp(strain,0,21),trabPct:cargaTotal>0?cargaTurno/cargaTotal:0};
+  return{strain:clamp(strain,0,21),trabPct:cargaTotal>0?cargaFabrica/cargaTotal:0};
 }
 
 function calcularBateria(recovery,peso){
