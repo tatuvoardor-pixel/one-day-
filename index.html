@@ -927,9 +927,8 @@ function calcularStrain(paletes,sacosReator,tempoMarreta,treinoTempo,treinoFc,pa
   const multTreino2=treinoTipo2==='forca'?1.2:treinoTipo2==='aerobico'?1.0:treinoTipo2==='alongamento'?0.3:0;
   const cargaTreino2=treinoTempo2*zonaFC2*multTreino2;
   const cargaTotal=cargaTurno+cargaTreino+cargaTreino2+(passos/100);
-  const maxStrain=intensidadeTurno==='moderado'?15:intensidadeTurno==='pesado'?17:21;
-  let strain=cargaTotal>0?3.5*Math.log(cargaTotal)-10:0;
-  return{strain:clamp(strain,0,maxStrain),trabPct:cargaTotal>0?cargaTurno/cargaTotal:0};
+  const strain=cargaTotal>0?3.5*Math.log(cargaTotal)-10:0;
+  return{strain:clamp(strain,0,21),trabPct:cargaTotal>0?cargaTurno/cargaTotal:0};
 }
 
 function calcularBateria(recovery,peso){
@@ -1257,7 +1256,7 @@ function confirmarEncerrarCiclo(){
     const leveMin=getInt('in-leve-horas')*60+getInt('in-leve-minutos'),profMin=getInt('in-prof-horas')*60+getInt('in-prof-minutos'),remMin=getInt('in-rem-horas')*60+getInt('in-rem-minutos');
     const sonoTotal=leveMin+profMin+remMin;
     let hist=lerHistorico();
-    hist.push({hrv,rhr,rpm,rmssd,strain,recovery_score:recVal,sonoTotal,turno:intensidadeTurno,tipoSono,ts:Date.now(),sono:{leveHoras:getInt('in-leve-horas'),leveMinutos:getInt('in-leve-minutos'),profHoras:getInt('in-prof-horas'),profMinutos:getInt('in-prof-minutos'),remHoras:getInt('in-rem-horas'),remMinutos:getInt('in-rem-minutos')}});
+    hist.push({hrv,rhr,rpm,rmssd,strain,recovery_score:recVal,sonoTotal,turno:intensidadeTurno,tipoSono,ts:Date.now()});
     if(hist.length>MAX_HISTORICO)hist.shift();
     localStorage.setItem('bio_historico_ciclos',JSON.stringify(hist));
     toast('✅ Ciclo salvo! Dia '+hist.length,'success');
@@ -1341,8 +1340,6 @@ function inicializar(){
   const ttArray2=JSON.parse(localStorage.getItem('bio_treino_tipos2')||'null');
   if(ttArray2&&ttArray2.length>0){treinoTipos2=ttArray2;treinoTipos2.forEach(t=>{const btn=getEl('btn-treino2-'+t);if(btn)btn.classList.add('active');});}
   if(localStorage.getItem('bio_doenca_auto')==='true')doencaAutomatica=true;
-  if(localStorage.getItem('bio_rec_botas')==='true')recBotas=true;
-  if(localStorage.getItem('bio_rec_gelado')==='true')recGelado=true;
   if(localStorage.getItem('bio_rec_sol')==='true')recSol=true;
   if(localStorage.getItem('bio_rec_meditacao')==='true')recMeditacao=true;
   grauSaude=g;setTurno(t);setSaude(s);setGrauSaude(g);setTipoSono(ts);
