@@ -235,6 +235,7 @@
 <body>
 <div id="toast"></div>
 <input type="hidden" id="in-hrv" value="50">
+<input type="hidden" id="in-vo2max" value="0">
 <div id="bridge-flash" class="bridge-flash">⟳ Sync</div>
 <div id="modal-confirm">
     <div class="modal-box">
@@ -603,6 +604,26 @@
     <div class="stat-card"><span class="stat-card-label">Dias Consecutivos Alta Carga</span><span class="stat-card-value" id="central-dias-carga">--</span></div>
     <div class="stat-card"><span class="stat-card-label">Tendência HRV 7D</span><span class="stat-card-value" id="central-hrv-trend">--</span></div>
     <div class="stat-card"><span class="stat-card-label">Total de Ciclos</span><span class="stat-card-value" id="central-total">0</span></div>
+
+    <div class="section-title">🧬 Saúde a Longo Prazo</div>
+    <div class="input-row" style="border-color:rgba(168,85,247,0.3);">
+      <div class="input-row-label">VO2max<small>Via PULSE · ou insira manual</small></div>
+      <div class="input-row-value">
+        <input type="number" inputmode="decimal" step="0.1" id="in-vo2max-vis" value="0" oninput="setV('in-vo2max',this.value);motorGeral()" style="color:var(--accent-purple);">
+        <span class="input-row-unit">ml/kg</span>
+      </div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(168,85,247,0.3);">
+      <span class="stat-card-label">🧬 Idade Biológica Estimada</span>
+      <span class="stat-card-value" id="central-idade-bio" style="font-size:22px;">--</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card-label">Δ vs Cronológica (37 anos)</span>
+      <span class="stat-card-value" id="central-idade-delta">--</span>
+    </div>
+    <div style="font-size:10px;color:var(--text-dim);text-align:center;padding:4px 0 8px;letter-spacing:0.08em;">
+      Disponível após 7 ciclos salvos · VO2max via PULSE
+    </div>
     <div class="section-title">😴 Sono — Últimos 10 Ciclos</div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1155,6 +1176,20 @@ function motorGeral(){
       else if(t<=-5){htEl.textContent='↘ '+t+'%';htEl.style.color='var(--accent-red)';}
       else{htEl.textContent='→ estável';htEl.style.color='var(--text-secondary)';}
     }
+    // Idade Biológica
+    const idadeBio=calcularIdadeBiologica();
+    const ibEl=getEl('central-idade-bio'),idEl=getEl('central-idade-delta');
+    if(idadeBio&&ibEl){
+      ibEl.textContent=idadeBio.idadeBiologica+' anos';
+      ibEl.style.color=idadeBio.delta<=-2?'var(--accent-teal)':idadeBio.delta>=2?'var(--accent-red)':'var(--text-primary)';
+    }else if(ibEl){ibEl.textContent='7+ ciclos';}
+    if(idadeBio&&idEl){
+      idEl.textContent=(idadeBio.delta>0?'+':'')+idadeBio.delta+' anos';
+      idEl.style.color=idadeBio.delta<=0?'var(--accent-teal)':'var(--accent-red)';
+    }
+    // Sync vo2max visible input
+    const vo2vis=getEl('in-vo2max-vis');const vo2hid=getEl('in-vo2max');
+    if(vo2vis&&vo2hid&&vo2vis.value==='0'&&vo2hid.value&&vo2hid.value!=='0')vo2vis.value=vo2hid.value;
     renderGraficoSono();
   }
   salvarInputs();
@@ -1196,7 +1231,7 @@ function salvarInputs(){
   try{
     const data={
       peso:getNum('in-peso'),bf:getNum('in-bf'),hrv:getInt('in-hrv'),rmssd:getInt('in-rmssd'),rhr:getInt('in-rhr'),rpm:getNum('in-rpm'),spo2:getInt('in-spo2'),estresse:getInt('in-estresse'),
-      temp:getNum('in-temp'),cochilo:getInt('in-cochilo'),
+      temp:getNum('in-temp'),cochilo:getInt('in-cochilo'),vo2max:getNum('in-vo2max'),
       passos:getNum('in-passos'),cal:getInt('in-cal'),prot:getInt('in-prot'),carb:getInt('in-carb'),agua:getInt('in-agua'),
       paletes:getInt('in-paletes'),reator:getInt('in-reator'),marreta:getInt('in-marreta'),fcTurno:getInt('in-fc-turno'),treinoTempo:getInt('in-treino-tempo'),treinoFc:getInt('in-treino-fc'),treinoTempo2:getInt('in-treino2-tempo'),treinoFc2:getInt('in-treino2-fc'),
       leveH:getInt('in-leve-horas'),leveM:getInt('in-leve-minutos'),profH:getInt('in-prof-horas'),profM:getInt('in-prof-minutos'),remH:getInt('in-rem-horas'),remM:getInt('in-rem-minutos'),
@@ -1210,7 +1245,7 @@ function restaurarInputs(){
   try{
     const s=localStorage.getItem('maxcore_inputs');if(!s)return;const d=JSON.parse(s);
     setV('in-peso',d.peso);setV('in-bf',d.bf);setV('in-hrv',d.hrv);setV('in-rmssd',d.rmssd);setV('in-rhr',d.rhr);setV('in-rpm',d.rpm);setV('in-spo2',d.spo2);setV('in-estresse',d.estresse);
-    setV('in-temp',d.temp);setV('in-cochilo',d.cochilo);
+    setV('in-temp',d.temp);setV('in-cochilo',d.cochilo);setV('in-vo2max',d.vo2max||0);
     setV('in-passos',d.passos);setV('in-cal',d.cal);setV('in-prot',d.prot);setV('in-carb',d.carb);setV('in-agua',d.agua);
     setV('in-paletes',d.paletes);setV('in-reator',d.reator);setV('in-marreta',d.marreta);setV('in-fc-turno',d.fcTurno);setV('in-treino-tempo',d.treinoTempo);setV('in-treino-fc',d.treinoFc);setV('in-treino2-tempo',d.treinoTempo2);setV('in-treino2-fc',d.treinoFc2);
     setV('in-leve-horas',d.leveH);setV('in-leve-minutos',d.leveM);setV('in-prof-horas',d.profH);setV('in-prof-minutos',d.profM);setV('in-rem-horas',d.remH);setV('in-rem-minutos',d.remM);
@@ -1236,7 +1271,7 @@ function aplicarBridgeData(manual){
     if(s.tipoSono==='dia'||s.tipoSono==='noite')setTipoSono(s.tipoSono);
     resumoMsg.push('SLEEP');
   }
-  if(data.pulse){if(data.pulse.fcTurno){setV('in-fc-turno',data.pulse.fcTurno);mudou=true;}if(data.pulse.fcTreino){setV('in-treino-fc',data.pulse.fcTreino);mudou=true;}if(data.pulse.estresse!=null){setV('in-estresse',data.pulse.estresse);mudou=true;}resumoMsg.push('PULSE');}
+  if(data.pulse){if(data.pulse.fcTurno){setV('in-fc-turno',data.pulse.fcTurno);mudou=true;}if(data.pulse.fcTreino){setV('in-treino-fc',data.pulse.fcTreino);mudou=true;}if(data.pulse.estresse!=null){setV('in-estresse',data.pulse.estresse);mudou=true;}if(data.pulse.vo2max){setV('in-vo2max',data.pulse.vo2max);mudou=true;}resumoMsg.push('PULSE');}
   if(data.work){const w=data.work;if(w.paletes!=null){setV('in-paletes',w.paletes);mudou=true;}if(w.reator!=null){setV('in-reator',w.reator);mudou=true;}if(w.marreta!=null){setV('in-marreta',w.marreta);mudou=true;}if(w.fcTurno){setV('in-fc-turno',w.fcTurno);mudou=true;}if(w.intensidade==='folga'||w.intensidade==='moderado'||w.intensidade==='pesado')setTurno(w.intensidade);if(w.passos!=null){setV('in-passos',w.passos);mudou=true;}resumoMsg.push('WORK');}
   if(data.fuel){const f=data.fuel;if(f.kcal!=null){setV('in-cal',f.kcal);mudou=true;}if(f.prot!=null){setV('in-prot',f.prot);mudou=true;}if(f.carb!=null){setV('in-carb',f.carb);mudou=true;}if(f.agua!=null){setV('in-agua',f.agua);mudou=true;}resumoMsg.push('FUEL');}
   if(data.jejum)resumoMsg.push('JEJUM');
@@ -1341,6 +1376,39 @@ function renderCalendario(){
     }
     grid.appendChild(cell);
   }
+}
+
+function calcularIdadeBiologica(){
+  const candles=obterMediasHistoricas();
+  if(!candles||candles.totalDias<7)return null;
+  const bf=getNum('in-bf',22);
+  const rhr=getNum('in-rhr',60);
+  const vo2max=getNum('in-vo2max',0);
+  let ajuste=0;
+  // VO2max (via PULSE)
+  if(vo2max>0){
+    if(vo2max>=55)ajuste-=3;
+    else if(vo2max>=48)ajuste-=2;
+    else if(vo2max>=42)ajuste-=1;
+    else if(vo2max>=35)ajuste+=0;
+    else if(vo2max>=28)ajuste+=2;
+    else ajuste+=3;
+  }
+  // RHR
+  if(rhr<50)ajuste-=2;else if(rhr<55)ajuste-=1;else if(rhr>70)ajuste+=2;else if(rhr>65)ajuste+=1;
+  // RMSSD baseline
+  if(candles.rmssd){
+    if(candles.rmssd>70)ajuste-=2;else if(candles.rmssd>55)ajuste-=1;else if(candles.rmssd<30)ajuste+=2;else if(candles.rmssd<40)ajuste+=1;
+  }
+  // Recovery 7d
+  if(candles.rec7d>=67)ajuste-=1;else if(candles.rec7d<34)ajuste+=2;else if(candles.rec7d<50)ajuste+=1;
+  // Body fat
+  if(bf<15)ajuste-=2;else if(bf<20)ajuste-=1;else if(bf>30)ajuste+=2;else if(bf>25)ajuste+=1;
+  // Débito de sono
+  if(candles.debitoSono>5)ajuste+=Math.min(3,Math.round(candles.debitoSono*0.5));
+  // HRV trending
+  if(candles.tendenciaHRV<=-5)ajuste+=1;else if(candles.tendenciaHRV>=5)ajuste-=1;
+  return{idadeBiologica:IDADE+ajuste,delta:ajuste};
 }
 
 function inicializar(){
