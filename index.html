@@ -704,6 +704,12 @@ function setText(id,txt){const el=document.getElementById(id);if(el)el.textConte
 function setHTML(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
 function getEl(id){return document.getElementById(id);}
 function setV(id,v){const el=getEl(id);if(el&&v!==undefined&&v!==null)el.value=v;}
+function corPorStrain(strain){
+  if(strain<7)return'var(--accent-teal)';
+  if(strain<14)return'var(--accent-yellow)';
+  return'var(--accent-red)';
+}
+
 function corPorScore(s){return s<34?'var(--accent-red)':s<67?'var(--accent-yellow)':'var(--accent-teal)';}
 
 let toastTimer=null;
@@ -1035,7 +1041,9 @@ function atualizarMural(rec,sono,candles,alertaInfeccao){
 function atualizarCardBriefing(icone,titulo,tipo){const card=getEl('briefing-card'),iconeEl=getEl('briefing-icon'),tituloEl=getEl('briefing-titulo');if(!card)return;card.classList.remove('alert','warn','good','illness');if(tipo)card.classList.add(tipo);if(iconeEl)iconeEl.textContent=icone;if(tituloEl)tituloEl.textContent=titulo;}
 
 function atualizarHomeAneis(strain,rec,sono){
-  setText('val-home-strain',strain.strain.toFixed(1));atualizarAnel('ring-home-strain',(strain.strain/21)*100);
+  setText('val-home-strain',strain.strain.toFixed(1));
+  atualizarAnel('ring-home-strain',(strain.strain/21)*100);
+  const rStr=getEl('ring-home-strain');if(rStr)rStr.style.stroke=corPorStrain(strain.strain);
   setText('val-home-recovery',rec.score+'%');atualizarAnel('ring-home-recovery',rec.score);
   const rR=getEl('ring-home-recovery');if(rR)rR.style.stroke=corPorScore(rec.score);
   if(rec.score<34)setText('sub-home-recovery','Crítico');else if(rec.score<67)setText('sub-home-recovery','Moderado');else if(rec.score<90)setText('sub-home-recovery','Bom');else setText('sub-home-recovery','Elite');
@@ -1117,7 +1125,9 @@ function motorGeral(){
   setText('sub-detail-recovery',subRec);
 
   const strain=calcularStrain(paletes,sacosReator,tempoMarreta,treinoTempo,treinoFc,passos,treinoTempo2,treinoFc2);
-  setText('val-detail-strain',strain.strain.toFixed(1));atualizarAnel('ring-detail-strain',(strain.strain/21)*100,CIRC_DETAIL);
+  setText('val-detail-strain',strain.strain.toFixed(1));
+  atualizarAnel('ring-detail-strain',(strain.strain/21)*100,CIRC_DETAIL);
+  const rDS2=getEl('ring-detail-strain');if(rDS2)rDS2.style.stroke=corPorStrain(strain.strain);
 
   const cal=calcularCalorias(peso,paletes,sacosReator,tempoMarreta,fcTurno,treinoTempo,treinoFc,passos,treinoTempo2,treinoFc2);
   setText('out-kcal-treino',cal.treino);setText('out-kcal-treino2',cal.treino2);setText('out-ativas',cal.total);
