@@ -818,6 +818,20 @@
     <div style="font-size:10px;color:var(--text-dim);text-align:center;padding:4px 0 8px;letter-spacing:0.08em;">
       Disponível após 7 ciclos salvos · VO2max via PULSE
     </div>
+    <div class="section-title">📈 Recovery × Strain — Últimos 10 Ciclos</div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);"><div style="width:8px;height:8px;border-radius:2px;background:var(--accent-teal)"></div>Recovery</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);"><div style="width:8px;height:3px;border-radius:2px;background:var(--accent-yellow)"></div>Strain</div>
+      </div>
+      <div id="grafico-rs" style="display:flex;align-items:flex-end;gap:4px;height:100px;position:relative;">
+        <div style="position:absolute;left:0;right:0;bottom:67%;border-top:1px dashed rgba(45,212,191,0.25);pointer-events:none;"></div>
+        <div style="position:absolute;left:0;right:0;bottom:34%;border-top:1px dashed rgba(239,68,68,0.2);pointer-events:none;"></div>
+      </div>
+      <div id="grafico-rs-labels" style="display:flex;gap:4px;margin-top:4px;"></div>
+      <div style="text-align:center;margin-top:8px;font-size:10px;color:var(--text-muted);" id="grafico-rs-media"></div>
+    </div>
+
     <div class="section-title">😴 Sono — Últimos 10 Ciclos</div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -920,7 +934,7 @@ function abrirTela(nome){
   prox.classList.add('active');prox.classList.remove('behind');
   requestAnimationFrame(()=>{prox.scrollTop=0;});
   telaAtual=nome;
-  if(nome==='central'){atualizarSyncBadge();renderGraficoSono();renderCalendario();}
+  if(nome==='central'){atualizarSyncBadge();renderGraficoRecoveryStrain();renderGraficoSono();renderCalendario();}
   if(['recovery','strain','sono','energia','nutricao'].includes(nome)){if(typeof aplicarBridgeData==='function')aplicarBridgeData(false);}
 }
 function voltarHome(){
@@ -1535,6 +1549,46 @@ function resetarHistorico(){if(!confirm('Apagar TODO o histórico? Esta ação n
 
 let calMesOffset=0;
 function mudarMesCalendario(dir){calMesOffset+=dir;renderCalendario();}
+
+function renderGraficoRecoveryStrain(){
+  const hist=lerHistorico();
+  const grafico=getEl('grafico-rs'),labels=getEl('grafico-rs-labels'),mediaEl=getEl('grafico-rs-media');
+  if(!grafico||!hist.length)return;
+  const ultimos=hist.slice(-10),alturaPx=100;
+  grafico.innerHTML='';labels.innerHTML='';
+  let totalRec=0;
+  ultimos.forEach((ciclo,i)=>{
+    const rec=ciclo.recovery_score||0;
+    const strain=clamp(ciclo.strain||0,0,21);
+    totalRec+=rec;
+    const altRec=(rec/100)*alturaPx;
+    const altStrain=(strain/21)*alturaPx;
+    const corRec=rec>=67?'var(--accent-teal)':rec>=34?'var(--accent-yellow)':'var(--accent-red)';
+    const corStrain=strain>=14?'var(--accent-red)':strain>=7?'var(--accent-yellow)':'var(--accent-teal)';
+    const wrap=document.createElement('div');
+    wrap.style.cssText='flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:'+alturaPx+'px;position:relative;';
+    wrap.title='Recovery '+rec+'% · Strain '+strain.toFixed(1);
+    // Recovery bar
+    const barRec=document.createElement('div');
+    barRec.style.cssText='height:'+altRec+'px;background:'+corRec+';border-radius:3px 3px 0 0;opacity:0.8;transition:height 0.5s ease;';
+    wrap.appendChild(barRec);
+    // Strain line
+    const strainLine=document.createElement('div');
+    strainLine.style.cssText='position:absolute;bottom:'+altStrain+'px;left:1px;right:1px;height:3px;background:'+corStrain+';border-radius:2px;opacity:0.9;';
+    wrap.appendChild(strainLine);
+    grafico.appendChild(wrap);
+    const lbl=document.createElement('div');
+    lbl.style.cssText='flex:1;text-align:center;font-size:9px;color:'+(i===ultimos.length-1?'var(--accent-teal)':'var(--text-muted)')+';';
+    const d=new Date(ciclo.ts||Date.now());
+    lbl.textContent=['D','S','T','Q','Q','S','S'][d.getDay()];
+    labels.appendChild(lbl);
+  });
+  if(ultimos.length>0&&mediaEl){
+    const mediaRec=Math.round(totalRec/ultimos.length);
+    mediaEl.textContent='Recovery médio: '+mediaRec+'%';
+    mediaEl.style.color=mediaRec>=67?'var(--accent-teal)':mediaRec>=34?'var(--accent-yellow)':'var(--accent-red)';
+  }
+}
 
 function renderCalendario(){
   const hist=lerHistorico();
