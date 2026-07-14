@@ -1434,12 +1434,21 @@ function renderGraficoSono(){
     const leveMin=(sono.leveHoras||0)*60+(sono.leveMinutos||0);
     const profMin=(sono.profHoras||0)*60+(sono.profMinutos||0);
     const remMin=(sono.remHoras||0)*60+(sono.remMinutos||0);
-    const totalMinCiclo=leveMin+profMin+remMin;totalMin+=totalMinCiclo;
+    // Ciclos antigos sem fases: usa sonoTotal como leve
+    const totalMinCiclo=leveMin+profMin+remMin||(ciclo.sonoTotal||0);
+    const leveEfetivo=leveMin||totalMinCiclo;
+    const profEfetivo=profMin;
+    const remEfetivo=remMin;
     const totalH=totalMinCiclo/60,alturaTotal=Math.min(totalH/maxH,1)*alturaPx;
     const corBase=totalH>=8?'var(--accent-green)':totalH>=6?'var(--accent-yellow)':'var(--accent-red)';
     const wrap=document.createElement('div');wrap.style.cssText='flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:'+alturaPx+'px;gap:1px;cursor:default;';wrap.title=totalH.toFixed(1)+'h';
     const addSeg=(h,cor)=>{if(h<=0)return;const seg=document.createElement('div');seg.style.cssText='height:'+h+'px;background:'+cor+';border-radius:2px;opacity:0.9;';wrap.appendChild(seg);};
-    if(totalMinCiclo>0){addSeg(alturaTotal*(remMin/totalMinCiclo),'#f472b6');addSeg(alturaTotal*(profMin/totalMinCiclo),'var(--accent-purple)');addSeg(alturaTotal*(leveMin/totalMinCiclo),'var(--accent-blue)');}else{addSeg(3,'var(--border)');}
+    if(totalMinCiclo>0){
+      addSeg(alturaTotal*(remEfetivo/totalMinCiclo),'#f472b6');
+      addSeg(alturaTotal*(profEfetivo/totalMinCiclo),'var(--accent-purple)');
+      addSeg(alturaTotal*(leveEfetivo/totalMinCiclo),'var(--accent-blue)');
+    }else{addSeg(3,'var(--border)');}
+    totalMin+=totalMinCiclo;
     const linha=document.createElement('div');linha.style.cssText='height:2px;background:'+corBase+';border-radius:1px;margin-top:2px;';wrap.appendChild(linha);grafico.appendChild(wrap);
     const lbl=document.createElement('div');lbl.style.cssText='flex:1;text-align:center;font-size:9px;color:'+(i===ultimos.length-1?'var(--accent-teal)':'var(--text-muted)')+';letter-spacing:0;';
     const d=new Date(ciclo.ts||Date.now());lbl.textContent=['D','S','T','Q','Q','S','S'][d.getDay()];labels.appendChild(lbl);
