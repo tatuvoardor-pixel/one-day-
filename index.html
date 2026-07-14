@@ -1272,7 +1272,7 @@ function aplicarBridgeData(manual){
     if(s.profMin!=null){setV('in-prof-horas',Math.floor(s.profMin/60));setV('in-prof-minutos',s.profMin%60);mudou=true;}
     if(s.remMin!=null){setV('in-rem-horas',Math.floor(s.remMin/60));setV('in-rem-minutos',s.remMin%60);mudou=true;}
     if(s.despertares!=null){setV('in-despertares',s.despertares);mudou=true;}
-    if(s.tempoAcordado!=null){setV('in-tempo-acordado',s.tempoAcordado);mudou=true;}
+    if(s.tempoAcordado!=null&&getInt('in-tempo-acordado',0)===0){setV('in-tempo-acordado',s.tempoAcordado);mudou=true;}
     if(s.hrv){setV('in-hrv',s.hrv);mudou=true;}if(s.rmssd){setV('in-rmssd',s.rmssd);mudou=true;}
     if(s.rhr){setV('in-rhr',s.rhr);mudou=true;}if(s.rpm){setV('in-rpm',s.rpm);mudou=true;}if(s.spo2){setV('in-spo2',s.spo2);mudou=true;}
     if(s.temp){setV('in-temp',s.temp);mudou=true;}
@@ -1429,9 +1429,15 @@ function inicializar(){
   const ttArray2=JSON.parse(localStorage.getItem('bio_treino_tipos2')||'null');
   if(ttArray2&&ttArray2.length>0){treinoTipos2=ttArray2;treinoTipos2.forEach(t=>{const btn=getEl('btn-treino2-'+t);if(btn)btn.classList.add('active');});}
   if(localStorage.getItem('bio_doenca_auto')==='true')doencaAutomatica=true;
+  if(localStorage.getItem('bio_rec_botas')==='true')recBotas=true;
+  if(localStorage.getItem('bio_rec_gelado')==='true')recGelado=true;
   if(localStorage.getItem('bio_rec_sol')==='true')recSol=true;
   if(localStorage.getItem('bio_rec_meditacao')==='true')recMeditacao=true;
   grauSaude=g;setTurno(t);setSaude(s);setGrauSaude(g);setTipoSono(ts);
+  // Sync campo visível VO2max com valor restaurado
+  const vo2salvo=getNum('in-vo2max',0);
+  const vo2visEl=getEl('in-vo2max-vis');
+  if(vo2visEl&&vo2salvo>0)vo2visEl.value=vo2salvo;
   ['botas','gelado','sol','meditacao'].forEach(r=>{
     const val={botas:recBotas,gelado:recGelado,sol:recSol,meditacao:recMeditacao}[r];
     const btn=getEl('btn-rec-'+r);if(btn&&val)btn.classList.add('active','rec');
