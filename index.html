@@ -230,6 +230,199 @@
         .screen.active > .screen-inner > *:nth-child(3) { animation-delay: 0.1s; }
         .screen.active > .screen-inner > *:nth-child(4) { animation-delay: 0.14s; }
         .screen.active > .screen-inner > *:nth-child(5) { animation-delay: 0.18s; }
+        /* ═══════════════════════════════════════════════════
+           SURREAL DESIGN SYSTEM — MAX.CORE v2.4
+        ═══════════════════════════════════════════════════ */
+
+        /* Aurora background */
+        body {
+            background: #050508;
+            background-image:
+                radial-gradient(ellipse 90% 60% at 15% 10%, rgba(45,212,191,0.09) 0%, transparent 65%),
+                radial-gradient(ellipse 70% 80% at 85% 80%, rgba(168,85,247,0.08) 0%, transparent 65%),
+                radial-gradient(ellipse 50% 50% at 55% 45%, rgba(96,165,250,0.04) 0%, transparent 65%);
+            animation: auroraBG 12s ease-in-out infinite alternate;
+        }
+        @keyframes auroraBG {
+            0%  { background-position: 0% 0%; }
+            100%{ background-position: 3% 5%; }
+        }
+
+        /* Glassmorphism universal */
+        .mural, .briefing-card, .ring-card, .quick-card,
+        .battery-section, .modal-box, .sync-row,
+        .stat-card, .sleep-bar, .progress-block,
+        .calib-badge {
+            background: rgba(255,255,255,0.034) !important;
+            backdrop-filter: blur(18px) saturate(1.4);
+            -webkit-backdrop-filter: blur(18px) saturate(1.4);
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.55),
+                        inset 0 1px 0 rgba(255,255,255,0.055) !important;
+        }
+        .input-row {
+            background: rgba(255,255,255,0.025) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.07) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .baseline-info {
+            background: rgba(0,0,0,0.3) !important;
+            border: 1px solid rgba(255,255,255,0.05) !important;
+            backdrop-filter: blur(8px);
+        }
+        .toggle-btn {
+            background: rgba(255,255,255,0.03) !important;
+            border: 1px solid rgba(255,255,255,0.07) !important;
+            backdrop-filter: blur(10px);
+        }
+        .toggle-btn.active {
+            background: rgba(255,255,255,0.92) !important;
+            box-shadow: 0 0 18px rgba(255,255,255,0.12) !important;
+        }
+        .toggle-btn.active.medio  { background: rgba(249,115,22,0.18) !important; box-shadow: 0 0 16px rgba(249,115,22,0.15) !important; }
+        .toggle-btn.active.pesado { background: rgba(239,68,68,0.18) !important;  box-shadow: 0 0 16px rgba(239,68,68,0.15) !important; }
+        .toggle-btn.active.dia    { background: rgba(249,115,22,0.18) !important; box-shadow: 0 0 16px rgba(249,115,22,0.15) !important; }
+        .toggle-btn.active.noite  { background: rgba(96,165,250,0.18) !important; box-shadow: 0 0 16px rgba(96,165,250,0.15) !important; }
+        .toggle-btn.active.healthy { background: rgba(74,222,128,0.18) !important; box-shadow: 0 0 16px rgba(74,222,128,0.15) !important; }
+        .toggle-btn.active.tired  { background: rgba(234,179,8,0.18) !important;  box-shadow: 0 0 16px rgba(234,179,8,0.15) !important; }
+        .toggle-btn.active.sick   { background: rgba(168,85,247,0.18) !important; box-shadow: 0 0 16px rgba(168,85,247,0.15) !important; }
+        .toggle-btn.active.injury { background: rgba(239,68,68,0.18) !important;  box-shadow: 0 0 16px rgba(239,68,68,0.15) !important; }
+        .toggle-btn.active.rec    { background: rgba(96,165,250,0.18) !important; box-shadow: 0 0 16px rgba(96,165,250,0.15) !important; }
+        #btn-treino-forca.active     { background: rgba(239,68,68,0.18) !important; box-shadow: 0 0 16px rgba(239,68,68,0.15) !important; }
+        #btn-treino-aerobico.active  { background: rgba(45,212,191,0.18) !important; box-shadow: 0 0 16px rgba(45,212,191,0.15) !important; }
+        #btn-treino-alongamento.active { background: rgba(74,222,128,0.18) !important; box-shadow: 0 0 16px rgba(74,222,128,0.15) !important; }
+        #btn-treino-outro.active     { background: rgba(168,85,247,0.18) !important; box-shadow: 0 0 16px rgba(168,85,247,0.15) !important; }
+
+        /* Ring cards — glow no svg */
+        .ring-card {
+            border-radius: 20px !important;
+            padding: 14px 8px 12px !important;
+        }
+        .ring-svg-wrap {
+            filter: drop-shadow(0 0 7px rgba(45,212,191,0.22));
+        }
+        .ring-value {
+            text-shadow: 0 0 24px rgba(255,255,255,0.45);
+        }
+
+        /* Detail rings — maior, mais imponente */
+        .detail-ring-wrap {
+            width: clamp(145px, 44vw, 178px) !important;
+            filter: drop-shadow(0 0 22px rgba(45,212,191,0.18));
+        }
+        .detail-ring-value {
+            font-size: clamp(36px, 10vw, 46px) !important;
+            text-shadow: 0 0 32px rgba(255,255,255,0.4);
+        }
+        .detail-ring-bg { stroke-width: 9 !important; }
+        .detail-ring-progress { stroke-width: 9 !important; }
+
+        /* Buttons premium */
+        .btn {
+            border-radius: 16px !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            background: rgba(255,255,255,0.04) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .btn.primary {
+            background: linear-gradient(135deg, rgba(45,212,191,0.18), rgba(168,85,247,0.12)) !important;
+            border: 1px solid rgba(45,212,191,0.38) !important;
+            box-shadow: 0 0 28px rgba(45,212,191,0.14), 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+            color: var(--accent-teal) !important;
+        }
+        .btn.purple {
+            background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(45,212,191,0.12)) !important;
+            border: 1px solid rgba(168,85,247,0.38) !important;
+            box-shadow: 0 0 28px rgba(168,85,247,0.14), 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+            color: var(--accent-purple) !important;
+        }
+        .btn:active { transform: scale(0.96) !important; opacity: 0.85; }
+
+        /* Section titles com borda esquerda neon */
+        .section-title {
+            background: linear-gradient(90deg, rgba(45,212,191,0.08), transparent) !important;
+            border-left: 2px solid var(--accent-teal) !important;
+            padding: 5px 10px !important;
+            border-radius: 0 6px 6px 0 !important;
+            margin: 20px 0 12px !important;
+        }
+
+        /* Topbar upgrade */
+        .topbar { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .topbar-btn {
+            background: rgba(255,255,255,0.04) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08) !important;
+        }
+
+        /* Brand mark com gradiente */
+        .brand-mark {
+            font-size: clamp(22px, 5.5vw, 27px) !important;
+            letter-spacing: 0.16em !important;
+            background: linear-gradient(135deg, #ffffff 0%, #2dd4bf 55%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .brand-mark span { -webkit-text-fill-color: transparent; }
+
+        /* Quick cards */
+        .quick-card {
+            border-radius: 16px !important;
+        }
+        .quick-card.battery .quick-card-title { text-shadow: 0 0 12px rgba(45,212,191,0.4); }
+        .quick-card.nutricao .quick-card-title { text-shadow: 0 0 12px rgba(249,115,22,0.4); }
+        .quick-card.estado .quick-card-title { text-shadow: 0 0 12px rgba(168,85,247,0.4); }
+        .quick-card-value { text-shadow: 0 0 20px rgba(255,255,255,0.25); }
+
+        /* Briefing card */
+        .briefing-card {
+            border-radius: 18px !important;
+        }
+        .briefing-card.good  { border-color: rgba(74,222,128,0.25) !important; box-shadow: 0 0 30px rgba(74,222,128,0.07), 0 8px 40px rgba(0,0,0,0.55) !important; }
+        .briefing-card.warn  { border-color: rgba(234,179,8,0.25) !important;  box-shadow: 0 0 30px rgba(234,179,8,0.07), 0 8px 40px rgba(0,0,0,0.55) !important; }
+        .briefing-card.alert { border-color: rgba(239,68,68,0.25) !important;  box-shadow: 0 0 30px rgba(239,68,68,0.07), 0 8px 40px rgba(0,0,0,0.55) !important; }
+        .briefing-card.illness { border-color: rgba(168,85,247,0.3) !important; box-shadow: 0 0 30px rgba(168,85,247,0.1), 0 8px 40px rgba(0,0,0,0.55) !important; }
+
+        /* Mural */
+        .mural.alert   { box-shadow: 0 0 35px rgba(239,68,68,0.1), 0 8px 40px rgba(0,0,0,0.55) !important; }
+        .mural.warn    { box-shadow: 0 0 35px rgba(234,179,8,0.08), 0 8px 40px rgba(0,0,0,0.55) !important; }
+        .mural.illness { box-shadow: 0 0 35px rgba(168,85,247,0.1), 0 8px 40px rgba(0,0,0,0.55) !important; }
+
+        /* Battery circle glow */
+        .battery-circle { filter: drop-shadow(0 0 18px rgba(45,212,191,0.15)); }
+
+        /* Sleep bar */
+        .sleep-bar-track {
+            background: rgba(0,0,0,0.4) !important;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        /* Toast upgrade */
+        #toast {
+            backdrop-filter: blur(20px) !important;
+            background: rgba(14,14,18,0.85) !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+        }
+
+        /* Stat cards */
+        .stat-card { border-radius: 14px !important; }
+
+        /* Calib badge */
+        .calib-badge { border-radius: 14px !important; }
+
+        /* Fadeup mais suave */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Ring progress home — glow dinâmico via js já aplicado */
+        .ring-progress { filter: drop-shadow(0 0 4px currentColor); }
+
     </style>
 </head>
 <body>
