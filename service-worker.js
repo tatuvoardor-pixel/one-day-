@@ -1,5 +1,5 @@
-/* MAX.CORE Service Worker v3.3 */
-const CACHE_NAME='maxcore-v3.3';
+/* MAX.CORE Service Worker v3.4 */
+const CACHE_NAME='maxcore-v3.4';
 const ARQUIVOS=['./','./index.html','./bio-bridge.js'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ARQUIVOS)));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(n=>Promise.all(n.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
